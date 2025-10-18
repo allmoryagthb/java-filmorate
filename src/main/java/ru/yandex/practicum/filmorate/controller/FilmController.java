@@ -14,6 +14,7 @@ import java.util.Objects;
 @RequestMapping("/films")
 public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
+    private Long id = 0L;
 
     @GetMapping
     public Collection<Film> getFilms() {
@@ -22,24 +23,20 @@ public class FilmController {
 
     @PostMapping
     public void addNewFilm(@RequestBody Film film) {
-        if (films.containsKey(film.getId())) {
-            throw new CustomValidationException("film with this id is already exists");
-        }
         filmValidator(film);
-        this.films.put(film.getId(), film);
+        film.setId(++id);
+        this.films.put(id, film);
     }
 
     @PutMapping
     public void updateFilm(@RequestBody Film film) {
-        if (!films.containsKey(film.getId()))
-            throw new CustomValidationException("film with this id is not exists");
+        if (Objects.isNull(film.getId()) || !films.containsKey(film.getId()))
+            throw new CustomValidationException("incorrect id");
         filmValidator(film);
         films.put(film.getId(), film);
     }
 
     private void filmValidator(Film film) {
-        if (Objects.isNull(film.getId()))
-            throw new CustomValidationException("id is null");
         if (Objects.isNull(film.getName()))
             throw new CustomValidationException("name is null");
         if (Objects.isNull(film.getDescription()))

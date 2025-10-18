@@ -23,7 +23,6 @@ public class FilmControllerTest {
     @Test
     public void addNewFilmWithValidParams() {
         Film film = Film.builder()
-                .id(123L)
                 .name("name")
                 .description("desc")
                 .releaseDate(LocalDate.of(2000, 10, 10))
@@ -42,7 +41,6 @@ public class FilmControllerTest {
     @Test
     public void getAllFilmsWhenNotEmpty() {
         Film film = Film.builder()
-                .id(123L)
                 .name("name")
                 .description("desc")
                 .releaseDate(LocalDate.of(2000, 10, 10))
@@ -56,14 +54,13 @@ public class FilmControllerTest {
     @Test
     public void updateFilmWithValidParams() {
         filmController.addNewFilm(Film.builder()
-                .id(123L)
                 .name("name")
                 .description("desc")
                 .releaseDate(LocalDate.of(2000, 10, 10))
                 .duration(123123L)
                 .build());
         Film filmUpd = Film.builder()
-                .id(123L)
+                .id(1L)
                 .name("name upd")
                 .description("desc upd")
                 .releaseDate(LocalDate.of(1999, 6, 15))
@@ -101,38 +98,27 @@ public class FilmControllerTest {
     private static Stream<Film> invalidFilms() {
         return Stream.of(
                 Film.builder()
-                        .name("name")
                         .description("desc")
                         .releaseDate(LocalDate.of(2000, 10, 10))
                         .duration(123123L)
                         .build(),
                 Film.builder()
-                        .id(123L)
-                        .description("desc")
-                        .releaseDate(LocalDate.of(2000, 10, 10))
-                        .duration(123123L)
-                        .build(),
-                Film.builder()
-                        .id(123L)
                         .name("name")
                         .releaseDate(LocalDate.of(2000, 10, 10))
                         .duration(123123L)
                         .build(),
                 Film.builder()
-                        .id(123L)
                         .name("name")
                         .description("desc")
                         .releaseDate(LocalDate.of(1, 10, 10))
                         .duration(123123L)
                         .build(),
                 Film.builder()
-                        .id(123L)
                         .name("name")
                         .description("desc")
                         .duration(123123L)
                         .build(),
                 Film.builder()
-                        .id(123L)
                         .name("name")
                         .description("desc")
                         .releaseDate(LocalDate.of(2000, 10, 10))
