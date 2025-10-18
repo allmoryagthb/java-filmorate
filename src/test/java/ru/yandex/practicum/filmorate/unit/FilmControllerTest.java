@@ -5,9 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.exception.CustomValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
@@ -31,14 +30,14 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(2000, 10, 10))
                 .duration(123123L)
                 .build();
-        Assertions.assertEquals(new ResponseEntity<>(film, HttpStatus.CREATED), filmController.addNewFilm(film),
-                "Ответ не совпадает с ожидаемым");
+        filmController.addNewFilm(film);
+
+        Assertions.assertTrue(filmController.getFilms().contains(film));
     }
 
     @Test
     public void getAllFilmsWhenEmpty() {
-        Assertions.assertEquals(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyMap()),
-                filmController.getFilms(), "Ответ не совпадает с ожидаемым");
+        Assertions.assertThrows(CustomValidationException.class, () -> filmController.getFilms());
     }
 
     @Test
@@ -52,8 +51,7 @@ public class FilmControllerTest {
                 .build();
         filmController.addNewFilm(film);
         var response = filmController.getFilms();
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(film, response.getBody().get(film.getId()));
+        Assertions.assertTrue(response.contains(film));
     }
 
     @Test
@@ -72,31 +70,33 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(1999, 6, 15))
                 .duration(54321L)
                 .build();
-        var response = filmController.updateFilm(filmUpd);
+        filmController.updateFilm(filmUpd);
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals("Данные фильма с id %s успешно обновлены".formatted(filmUpd.getId()), response.getBody());
+        Assertions.assertTrue(filmController.getFilms().contains(filmUpd));
     }
 
     @ParameterizedTest
     @MethodSource("invalidFilms")
     public void addNewFilmWithInvalidParams(Film invalidFilm) {
-        var response = filmController.addNewFilm(invalidFilm);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Фильм не прошел валидацию", response.getBody());
+        Assertions.assertThrows(CustomValidationException.class, () -> filmController.addNewFilm(invalidFilm));
     }
 
     @Test
     public void updateFilmWithNonexistedId() {
-        var response = filmController.updateFilm(Film.builder()
+        Film film = Film.builder()
                 .id(1234567L)
                 .name("name")
                 .description("desc")
                 .releaseDate(LocalDate.of(2000, 10, 10))
                 .duration(123123L)
-                .build());
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Фильма с таким id не существует", response.getBody());
+                .build();
+        Assertions.assertThrows(CustomValidationException.class, () -> filmController.updateFilm(Film.builder()
+                .id(1234567L)
+                .name("name")
+                .description("desc")
+                .releaseDate(LocalDate.of(2000, 10, 10))
+                .duration(123123L)
+                .build()));
     }
 
     private static Stream<Film> invalidFilms() {
