@@ -36,7 +36,7 @@ public class FilmControllerTest {
 
     @Test
     public void getAllFilmsWhenEmpty() {
-        Assertions.assertThrows(CustomValidationException.class, () -> filmController.getFilms());
+        Assertions.assertTrue(filmController.getFilms().isEmpty());
     }
 
     @Test
