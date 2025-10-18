@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @RestController
+@RequestMapping("/users")
 public class UserController {
     private final Map<Long, User> users = new HashMap<>();
 
