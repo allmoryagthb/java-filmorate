@@ -22,18 +22,20 @@ public class FilmController {
     }
 
     @PostMapping
-    public void addNewFilm(@RequestBody Film film) {
+    public Film addNewFilm(@RequestBody Film film) {
         filmValidator(film);
         film.setId(++id);
         this.films.put(id, film);
+        return film;
     }
 
     @PutMapping
-    public void updateFilm(@RequestBody Film film) {
+    public Film updateFilm(@RequestBody Film film) {
         if (Objects.isNull(film.getId()) || !films.containsKey(film.getId()))
             throw new CustomValidationException("incorrect id");
         filmValidator(film);
         films.put(film.getId(), film);
+        return film;
     }
 
     private void filmValidator(Film film) {

@@ -22,18 +22,20 @@ public class UserController {
     }
 
     @PostMapping
-    public void addNewUser(@RequestBody User user) {
+    public User addNewUser(@RequestBody User user) {
         userValidator(user);
         user.setId(++id);
         users.put(user.getId(), user);
+        return user;
     }
 
     @PutMapping
-    public void updateUser(@RequestBody User user) {
+    public User updateUser(@RequestBody User user) {
         if (Objects.isNull(user.getId()) || !users.containsKey(user.getId()))
             throw new CustomValidationException("incorrect id");
         userValidator(user);
         users.put(user.getId(), user);
+        return user;
     }
 
     private void userValidator(User user) {
