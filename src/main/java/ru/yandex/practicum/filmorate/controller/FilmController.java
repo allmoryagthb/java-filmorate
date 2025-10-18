@@ -17,15 +17,13 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> getFilms() {
-        if (films.isEmpty())
-            throw new CustomValidationException("Коллекция фильмов пустая");
         return films.values();
     }
 
     @PostMapping
     public void addNewFilm(@RequestBody Film film) {
         if (films.containsKey(film.getId())) {
-            throw new CustomValidationException("Фильм с таким id уже существует");
+            throw new CustomValidationException("film with this id is already exists");
         }
         filmValidator(film);
         this.films.put(film.getId(), film);
@@ -34,22 +32,31 @@ public class FilmController {
     @PutMapping
     public void updateFilm(@RequestBody Film film) {
         if (!films.containsKey(film.getId()))
-            throw new CustomValidationException("Фильма с таким id не существует");
+            throw new CustomValidationException("film with this id is not exists");
         filmValidator(film);
         films.put(film.getId(), film);
     }
 
     private void filmValidator(Film film) {
-        if (Objects.isNull(film.getId()) ||
-                Objects.isNull(film.getName()) ||
-                Objects.isNull(film.getDescription()) ||
-                Objects.isNull(film.getReleaseDate()) ||
-                Objects.isNull(film.getDuration()) ||
-                film.getName().isBlank() ||
-                film.getDescription().isBlank() ||
-                film.getDescription().length() > 200 ||
-                film.getDuration() < 1 ||
-                film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28)))
-            throw new CustomValidationException("Фильм не прошел валидацию");
+        if (Objects.isNull(film.getId()))
+            throw new CustomValidationException("id is null");
+        if (Objects.isNull(film.getName()))
+            throw new CustomValidationException("name is null");
+        if (Objects.isNull(film.getDescription()))
+            throw new CustomValidationException("description is null");
+        if (Objects.isNull(film.getReleaseDate()))
+            throw new CustomValidationException("releaseDate is null");
+        if (Objects.isNull(film.getDuration()))
+            throw new CustomValidationException("duration is null");
+        if (film.getName().isBlank())
+            throw new CustomValidationException("name is blank");
+        if (film.getDescription().isBlank())
+            throw new CustomValidationException("description is blank");
+        if (film.getDescription().length() > 200)
+            throw new CustomValidationException("description > 200");
+        if (film.getDuration() < 1)
+            throw new CustomValidationException("duration < 1");
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28)))
+            throw new CustomValidationException("LocalDate is before 1895-12-28");
     }
 }
