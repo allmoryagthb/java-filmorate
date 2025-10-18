@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.exception.CustomValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.stream.Stream;
 
 public class FilmControllerTest {
