@@ -79,13 +79,6 @@ public class FilmControllerTest {
 
     @Test
     public void updateFilmWithNonexistedId() {
-        Film film = Film.builder()
-                .id(1234567L)
-                .name("name")
-                .description("desc")
-                .releaseDate(LocalDate.of(2000, 10, 10))
-                .duration(123123L)
-                .build();
         Assertions.assertThrows(CustomValidationException.class, () -> filmController.updateFilm(Film.builder()
                 .id(1234567L)
                 .name("name")
