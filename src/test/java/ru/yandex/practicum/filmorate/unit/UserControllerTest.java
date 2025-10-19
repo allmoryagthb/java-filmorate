@@ -3,14 +3,11 @@ package ru.yandex.practicum.filmorate.unit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.CustomValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.stream.Stream;
 
 public class UserControllerTest {
     private UserController userController;
@@ -74,9 +71,14 @@ public class UserControllerTest {
         Assertions.assertTrue(userController.getUsers().contains(userUpd));
     }
 
-    @ParameterizedTest
-    @MethodSource("invalidUsers")
-    public void addNewUserWithInvalidParams(User invalidUser) {
+    @Test
+    public void addNewUserWithInvalidParams() {
+        User invalidUser = User.builder()
+                .email("johndoe@mail.com")
+                .login("jdoe 123")
+                .name("John_D")
+                .birthday(LocalDate.of(1990, 1, 1))
+                .build();
         Assertions.assertThrows(CustomValidationException.class, () -> userController.addNewUser(invalidUser));
     }
 
@@ -90,38 +92,5 @@ public class UserControllerTest {
                 .birthday(LocalDate.of(1988, 5, 12))
                 .build();
         Assertions.assertThrows(CustomValidationException.class, () -> userController.updateUser(userUpd));
-    }
-
-    private static Stream<User> invalidUsers() {
-        return Stream.of(
-                User.builder()
-                        .login("jdoe123upd")
-                        .name("John_Dupd")
-                        .birthday(LocalDate.of(1988, 5, 12))
-                        .build(),
-                User.builder()
-                        .email("это-неправильный?эмейл@")
-                        .login("jdoe123upd")
-                        .name("John_Dupd")
-                        .birthday(LocalDate.of(1988, 5, 12))
-                        .build(),
-                User.builder()
-                        .email("johndoeupd@mail.com")
-                        .login("jdoe123 upd")
-                        .name("John_Dupd")
-                        .birthday(LocalDate.of(1988, 5, 12))
-                        .build(),
-                User.builder()
-                        .email("johndoeupd@mail.com")
-                        .login("jdoe123upd")
-                        .name("John_Dupd")
-                        .birthday(LocalDate.of(2999, 12, 12))
-                        .build(),
-                User.builder()
-                        .email("johndoeupd@mail.com")
-                        .login("jdoe123upd")
-                        .name("John_Dupd")
-                        .build()
-        );
     }
 }

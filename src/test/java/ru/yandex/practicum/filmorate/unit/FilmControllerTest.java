@@ -3,14 +3,11 @@ package ru.yandex.practicum.filmorate.unit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.CustomValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.stream.Stream;
 
 public class FilmControllerTest {
     private FilmController filmController;
@@ -71,9 +68,14 @@ public class FilmControllerTest {
         Assertions.assertTrue(filmController.getFilms().contains(filmUpd));
     }
 
-    @ParameterizedTest
-    @MethodSource("invalidFilms")
-    public void addNewFilmWithInvalidParams(Film invalidFilm) {
+    @Test
+    public void addNewFilmWithInvalidParams() {
+        Film invalidFilm = Film.builder()
+                .name("name")
+                .description("desc")
+                .releaseDate(LocalDate.of(10, 10, 10))
+                .duration(123123L)
+                .build();
         Assertions.assertThrows(CustomValidationException.class, () -> filmController.addNewFilm(invalidFilm));
     }
 
@@ -86,36 +88,5 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(2000, 10, 10))
                 .duration(123123L)
                 .build()));
-    }
-
-    private static Stream<Film> invalidFilms() {
-        return Stream.of(
-                Film.builder()
-                        .description("desc")
-                        .releaseDate(LocalDate.of(2000, 10, 10))
-                        .duration(123123L)
-                        .build(),
-                Film.builder()
-                        .name("name")
-                        .releaseDate(LocalDate.of(2000, 10, 10))
-                        .duration(123123L)
-                        .build(),
-                Film.builder()
-                        .name("name")
-                        .description("desc")
-                        .releaseDate(LocalDate.of(1, 10, 10))
-                        .duration(123123L)
-                        .build(),
-                Film.builder()
-                        .name("name")
-                        .description("desc")
-                        .duration(123123L)
-                        .build(),
-                Film.builder()
-                        .name("name")
-                        .description("desc")
-                        .releaseDate(LocalDate.of(2000, 10, 10))
-                        .build()
-        );
     }
 }

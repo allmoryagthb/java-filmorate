@@ -18,14 +18,15 @@ import java.util.Objects;
 @NoArgsConstructor
 @Builder
 public class Film {
-    @NotNull(message = "id is required")
     private Long id;
     @NotBlank
     private String name;
+    @NotBlank
     @Size(min = 1, max = 200)
     private String description;
     @NotNull
     private LocalDate releaseDate;
+    @NotNull
     @Min(1)
     private Long duration;
 
