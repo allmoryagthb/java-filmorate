@@ -17,7 +17,7 @@ import java.util.Objects;
 @RequestMapping("/films")
 public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
-    private final static LocalDate dateCheck = LocalDate.of(1895, 12, 28);
+    private final LocalDate dateCheck = LocalDate.of(1895, 12, 28);
     private Long id = 0L;
 
     @GetMapping
