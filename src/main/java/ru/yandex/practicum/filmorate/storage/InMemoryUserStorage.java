@@ -14,7 +14,7 @@ import java.util.Objects;
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
-    private static final Map<Long, User> users = new HashMap<>();
+    private final Map<Long, User> users = new HashMap<>();
     private Long id = 0L;
 
 

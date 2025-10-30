@@ -36,6 +36,10 @@ public class Film {
     @NotNull
     private Set<Long> likesUsersIds = new HashSet<>();
 
+    public Integer getRating() {
+        return likesUsersIds.size();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
