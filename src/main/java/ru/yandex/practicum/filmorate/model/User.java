@@ -1,40 +1,40 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Past;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
-/**
- * Film.
- */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Film {
+public class User {
     private Long id;
+    @Email
     @NotBlank
+    private String email;
+    @NotBlank
+    private String login;
     private String name;
-    @NotBlank
-    @Size(min = 1, max = 200)
-    private String description;
     @NotNull
-    private LocalDate releaseDate;
-    @NotNull
-    @Min(1)
-    private Long duration;
+    @Past
+    private LocalDate birthday;
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Film film = (Film) o;
-        return Objects.equals(id, film.id) && Objects.equals(name, film.name) && Objects.equals(description, film.description) && Objects.equals(releaseDate, film.releaseDate) && Objects.equals(duration, film.duration);
+        User user = (User) o;
+        return Objects.equals(id, user.id)
+                && Objects.equals(email, user.email)
+                && Objects.equals(login, user.login)
+                && Objects.equals(name, user.name)
+                && Objects.equals(birthday, user.birthday);
     }
 
     @Override
