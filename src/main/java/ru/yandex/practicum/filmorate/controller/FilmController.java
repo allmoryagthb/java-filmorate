@@ -2,53 +2,48 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.CustomValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private final Map<Long, Film> films = new HashMap<>();
-    private final LocalDate dateCheck = LocalDate.of(1895, 12, 28);
-    private Long id = 0L;
+    private final FilmService filmService;
+
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @GetMapping
-    public Collection<Film> getFilms() {
-        log.info("return all films");
-        return films.values();
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<Film> getAllFilms() {
+        return filmService.getAllFilms();
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Film addNewFilm(@Valid @RequestBody Film film) {
-        filmValidator(film);
-        film.setId(++id);
-        this.films.put(id, film);
-        log.info("new film added to collection");
-        return film;
+        return filmService.addNewFilm(film);
     }
 
     @PutMapping
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public Film updateFilm(@Valid @RequestBody Film film) {
-        if (Objects.isNull(film.getId()) || !films.containsKey(film.getId()))
-            throw new CustomValidationException("incorrect id");
-        filmValidator(film);
-        films.put(film.getId(), film);
-        log.info("film successfully updated");
-        return film;
+        return filmService.updateFilm(film);
     }
 
-    private void filmValidator(@Valid Film film) {
-        if (film.getReleaseDate().isBefore(dateCheck)) {
-            log.error("incorrect data - validation failed");
-            throw new CustomValidationException("date is before " + dateCheck);
-        }
+    @PutMapping("/{filmId}/like/{userId}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void putLikeToFilm(
+            @PathVariable(value = "filmId") Long filmId,
+            @PathVariable(value = "userId") Long userId) {
+        filmService.putLikeToFilm(filmId, userId);
     }
 }

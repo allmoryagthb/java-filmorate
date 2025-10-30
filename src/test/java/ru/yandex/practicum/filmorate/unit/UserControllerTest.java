@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.exception.CustomValidationException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -79,7 +79,7 @@ public class UserControllerTest {
                 .name("John_D")
                 .birthday(LocalDate.of(1990, 1, 1))
                 .build();
-        Assertions.assertThrows(CustomValidationException.class, () -> userController.addNewUser(invalidUser));
+        Assertions.assertThrows(ValidationException.class, () -> userController.addNewUser(invalidUser));
     }
 
     @Test
@@ -91,6 +91,6 @@ public class UserControllerTest {
                 .name("John_Dupd")
                 .birthday(LocalDate.of(1988, 5, 12))
                 .build();
-        Assertions.assertThrows(CustomValidationException.class, () -> userController.updateUser(userUpd));
+        Assertions.assertThrows(ValidationException.class, () -> userController.updateUser(userUpd));
     }
 }
