@@ -8,7 +8,9 @@ import lombok.*;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -27,6 +29,8 @@ public class User {
     @NotNull
     @Past
     private LocalDate birthday;
+    @NotNull
+    private Set<Long> friendsList = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

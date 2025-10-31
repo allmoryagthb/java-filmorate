@@ -26,7 +26,7 @@ public class FilmService {
     private Long id = 0L;
 
     public Collection<Film> getAllFilms() {
-        log.info("return all films");
+        log.info("Вернуть все фильмы");
         return filmStorage.getAllFilms();
     }
 

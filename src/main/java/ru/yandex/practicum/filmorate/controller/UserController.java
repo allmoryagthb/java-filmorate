@@ -3,9 +3,10 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
 
@@ -14,21 +15,54 @@ import java.util.Collection;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserStorage userStorage;
+    private final UserService userService;
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public Collection<User> getUsers() {
-        return userStorage.getAllUsers();
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("/{userId}/friends")
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<User> getFriends(
+            @PathVariable(value = "userId") Long userId) {
+        return userService.getFriends(userId);
+    }
+
+    @GetMapping("/{userId}/friends/common/{otherId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<User> getCommonFriends(
+            @PathVariable(value = "userId") Long userId,
+            @PathVariable(value = "otherId") Long otherId) {
+        return userService.getCommonFriends(userId, otherId);
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public User addNewUser(@RequestBody @Valid User user) {
-        return userStorage.addNewUser(user);
+        return userService.addNewUser(user);
     }
 
     @PutMapping
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public User updateUser(@RequestBody @Valid User user) {
-        return userStorage.updateUser(user);
+        return userService.updateUser(user);
     }
 
+    @PutMapping("/{userId}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void addUserToFriend(
+            @PathVariable(value = "userId") Long userId,
+            @PathVariable(value = "friendId") Long friendId) {
+        userService.addUserToFriend(userId, friendId);
+    }
+
+    @DeleteMapping("/{userId}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void removeUserFromFriends(
+            @PathVariable(value = "userId") Long userId,
+            @PathVariable(value = "friendId") Long friendId) {
+        userService.removeUserFromFriends(userId, friendId);
+    }
 }
