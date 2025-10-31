@@ -45,13 +45,13 @@ public class UserController {
     }
 
     @PutMapping
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.OK)
     public User updateUser(@RequestBody @Valid User user) {
         return userService.updateUser(user);
     }
 
     @PutMapping("/{userId}/friends/{friendId}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.OK)
     public void addUserToFriend(
             @PathVariable(value = "userId") Long userId,
             @PathVariable(value = "friendId") Long friendId) {
@@ -59,7 +59,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.OK)
     public void removeUserFromFriends(
             @PathVariable(value = "userId") Long userId,
             @PathVariable(value = "friendId") Long friendId) {

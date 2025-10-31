@@ -36,13 +36,13 @@ public class FilmController {
     }
 
     @PutMapping
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.OK)
     public Film updateFilm(@Valid @RequestBody Film film) {
         return filmService.updateFilm(film);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.OK)
     public void putLikeToFilm(
             @PathVariable(value = "filmId") Long filmId,
             @PathVariable(value = "userId") Long userId) {
@@ -50,7 +50,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.OK)
     public void removeLikeFromFilm(
             @PathVariable(value = "filmId") Long filmId,
             @PathVariable(value = "userId") Long userId) {
