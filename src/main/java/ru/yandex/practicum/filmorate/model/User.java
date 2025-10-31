@@ -30,7 +30,7 @@ public class User {
     @Past
     private LocalDate birthday;
     @NotNull
-    private Set<Long> friendsList = new HashSet<>();
+    private final Set<Long> friendsList = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

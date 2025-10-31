@@ -34,7 +34,7 @@ public class Film {
     @Min(1)
     private Long duration;
     @NotNull
-    private Set<Long> likesUsersIds = new HashSet<>();
+    private final Set<Long> likesUsersIds = new HashSet<>();
 
     public Integer getRating() {
         return likesUsersIds.size();
