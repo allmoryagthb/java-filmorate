@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -84,7 +85,7 @@ public class FilmControllerTest {
 
     @Test
     public void updateFilmWithNonexistedId() {
-        Assertions.assertThrows(ValidationException.class, () -> filmController.updateFilm(Film.builder()
+        Assertions.assertThrows(EntityNotFoundException.class, () -> filmController.updateFilm(Film.builder()
                 .id(1234567L)
                 .name("name")
                 .description("desc")

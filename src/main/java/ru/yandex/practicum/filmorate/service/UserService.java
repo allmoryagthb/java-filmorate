@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
@@ -17,7 +16,6 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
     private Long id = 0L;
