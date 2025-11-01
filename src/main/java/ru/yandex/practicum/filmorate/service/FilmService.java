@@ -23,7 +23,6 @@ public class FilmService {
     private final UserStorage userStorage;
 
     private final LocalDate dateCheck = LocalDate.of(1895, 12, 28);
-    private Long id = 0L;
 
     public Collection<Film> getAllFilms() {
         log.info("Вернуть все фильмы");
@@ -32,9 +31,8 @@ public class FilmService {
 
     public Film addNewFilm(Film film) {
         filmValidator(film);
-        film.setId(++id);
         filmStorage.addNewFilm(film);
-        log.info("Добавлен новый фильм с id = {}", id);
+        log.info("Добавлен новый фильм с id = {}", film.getId());
         return film;
     }
 
@@ -67,6 +65,8 @@ public class FilmService {
     }
 
     public Collection<Film> getPopular(Integer count) {
+        if (count < 1)
+            throw new ValidationException("Значение count должно быть больше нуля");
         return filmStorage.getAllFilms()
                 .stream()
                 .sorted(Comparator.comparingLong(Film::getRating).reversed())

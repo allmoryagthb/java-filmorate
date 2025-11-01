@@ -18,9 +18,6 @@ import java.util.Objects;
 public class UserService {
     private final UserStorage userStorage;
 
-    private Long id = 0L;
-
-
     public Collection<User> getAllUsers() {
         log.info("Вернуть всех пользователей");
         return userStorage.getAllUsers();
@@ -28,17 +25,13 @@ public class UserService {
 
     public User addNewUser(@Valid User user) {
         userValidator(user);
-        user.setId(++id);
         userStorage.addNewUser(user);
-        log.info("Добавлен новый пользователь с id = {}", id);
+        log.info("Добавлен новый пользователь с id = {}", user.getId());
         return user;
     }
 
     public User updateUser(@Valid User user) {
-        if (Objects.isNull(user.getId()))
-            throw new ValidationException("Некорректный id");
-        if (!userStorage.checkUserExistsById(user.getId()))
-            throw new EntityNotFoundException("Пользователя с id = %s не существует".formatted(user.getId()));
+        checkId(user.getId());
         userValidator(user);
         User updUser = userStorage.updateUser(user);
         log.info("Пользователь с id = {} успешно обновлен", updUser.getId());
@@ -46,25 +39,28 @@ public class UserService {
     }
 
     public void addUserToFriend(Long userId, Long friendId) {
-        storagesValidator(userId, friendId);
+        checkId(userId);
+        checkId(friendId);
+        checkIfIdsAreEquals(userId, friendId);
         userStorage.addUserToFriend(userId, friendId);
     }
 
     public void removeUserFromFriends(Long userId, Long friendId) {
-        storagesValidator(userId, friendId);
+        checkId(userId);
+        checkId(friendId);
+        checkIfIdsAreEquals(userId, friendId);
         userStorage.removeUserFromFriends(userId, friendId);
     }
 
     public Collection<User> getFriends(Long userId) {
-        if (userId == null)
-            throw new ValidationException("Переданы некорректные параметры");
-        if (!userStorage.checkUserExistsById(userId))
-            throw new EntityNotFoundException("Пользователя с id = %s не существует".formatted(userId));
+        checkId(userId);
         return userStorage.getFriends(userId);
     }
 
     public Collection<User> getCommonFriends(Long userId, Long otherId) {
-        storagesValidator(userId, otherId);
+        checkId(userId);
+        checkId(otherId);
+        checkIfIdsAreEquals(userId, otherId);
         return userStorage.getCommonFriends(userId, otherId);
     }
 
@@ -79,16 +75,15 @@ public class UserService {
         }
     }
 
-    private void storagesValidator(Long userId, Long friendId) {
-        if (userId == null || friendId == null)
-            throw new ValidationException("Переданы некорректные параметры");
-        if (userId.equals(friendId))
-            throw new ValidationException("Переданы одинаковые id пользователей");
+    private void checkId(Long userId) {
+        if (Objects.isNull(userId))
+            throw new ValidationException("Некорректный id");
         if (!userStorage.checkUserExistsById(userId))
             throw new EntityNotFoundException("Пользователя с id = %s не существует".formatted(userId));
-        if (!userStorage.checkUserExistsById(friendId))
-            throw new EntityNotFoundException("Пользователя с id = %s не существует".formatted(friendId));
     }
 
-
+    private void checkIfIdsAreEquals(Long userId, Long friendId) {
+        if (userId.equals(friendId))
+            throw new ValidationException("Переданы одинаковые id пользователей");
+    }
 }

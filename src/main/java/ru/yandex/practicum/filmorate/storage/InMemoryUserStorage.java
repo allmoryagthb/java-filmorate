@@ -13,7 +13,7 @@ import java.util.Set;
 @Component
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
-
+    private Long id = 0L;
 
     @Override
     public Collection<User> getAllUsers() {
@@ -22,7 +22,8 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User addNewUser(User user) {
-        users.put(user.getId(), user);
+        user.setId(++id);
+        users.put(id, user);
         return user;
     }
 

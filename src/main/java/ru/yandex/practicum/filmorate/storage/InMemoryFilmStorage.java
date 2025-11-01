@@ -12,6 +12,7 @@ import java.util.Map;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
+    private Long id = 0L;
 
     @Override
     public Collection<Film> getAllFilms() {
@@ -20,7 +21,8 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void addNewFilm(Film film) {
-        films.put(film.getId(), film);
+        film.setId(++id);
+        films.put(id, film);
     }
 
     @Override
