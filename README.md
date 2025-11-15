@@ -1,3 +1,3 @@
 # java-filmorate
 Template repository for Filmorate project.
-![schema](./filmorate.png)
+![schema](src/main/resources/filmorate.png)
