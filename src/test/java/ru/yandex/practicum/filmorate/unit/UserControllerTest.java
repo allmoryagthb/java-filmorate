@@ -4,8 +4,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.exception.CustomValidationException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -14,7 +17,7 @@ public class UserControllerTest {
 
     @BeforeEach
     public void setUp() {
-        userController = new UserController();
+        userController = new UserController(new UserService(new InMemoryUserStorage()));
     }
 
     @Test
@@ -79,7 +82,7 @@ public class UserControllerTest {
                 .name("John_D")
                 .birthday(LocalDate.of(1990, 1, 1))
                 .build();
-        Assertions.assertThrows(CustomValidationException.class, () -> userController.addNewUser(invalidUser));
+        Assertions.assertThrows(ValidationException.class, () -> userController.addNewUser(invalidUser));
     }
 
     @Test
@@ -91,6 +94,6 @@ public class UserControllerTest {
                 .name("John_Dupd")
                 .birthday(LocalDate.of(1988, 5, 12))
                 .build();
-        Assertions.assertThrows(CustomValidationException.class, () -> userController.updateUser(userUpd));
+        Assertions.assertThrows(EntityNotFoundException.class, () -> userController.updateUser(userUpd));
     }
 }

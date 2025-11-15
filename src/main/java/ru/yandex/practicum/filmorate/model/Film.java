@@ -5,9 +5,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Film.
@@ -17,6 +20,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Component
 public class Film {
     private Long id;
     @NotBlank
@@ -29,6 +33,12 @@ public class Film {
     @NotNull
     @Min(1)
     private Long duration;
+    @NotNull
+    private final Set<Long> likesUsersIds = new HashSet<>();
+
+    public Integer getRating() {
+        return likesUsersIds.size();
+    }
 
     @Override
     public boolean equals(Object o) {
