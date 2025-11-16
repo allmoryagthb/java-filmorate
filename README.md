@@ -2,4 +2,4 @@
 Template repository for Filmorate project.
 
 
-![pic](filmorate_pic.png)
+![pic](./schema/filmorate_schema.png)
