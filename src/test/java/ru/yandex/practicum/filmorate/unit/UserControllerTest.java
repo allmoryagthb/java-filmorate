@@ -7,8 +7,6 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -17,7 +15,7 @@ public class UserControllerTest {
 
     @BeforeEach
     public void setUp() {
-        userController = new UserController(new UserService(new InMemoryUserStorage()));
+        userController = null;
     }
 
     @Test

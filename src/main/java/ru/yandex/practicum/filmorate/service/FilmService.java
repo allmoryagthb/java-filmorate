@@ -4,11 +4,12 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.dao.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.dal.dao.storage.UserStorage;
+import ru.yandex.practicum.filmorate.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -40,14 +41,14 @@ public class FilmService {
         return film;
     }
 
-    public Film updateFilm(Film film) {
-        if (Objects.isNull(film.getId()))
+    public FilmDto updateFilm(FilmDto filmDto) {
+        if (Objects.isNull(filmDto.getId()))
             throw new ValidationException("Некорректный id");
-        if (!filmStorage.checkFilmExistsById(film.getId()))
-            throw new EntityNotFoundException("Фильма с id = %s не существует".formatted(film.getId()));
-        filmValidator(film);
-        Film updatedFilm = filmStorage.updateFilm(film);
-        log.info("Фильм с id = {} успешно обновлен", film.getId());
+        if (!filmStorage.checkFilmExistsById(filmDto.getId()))
+            throw new EntityNotFoundException("Фильма с id = %s не существует".formatted(filmDto.getId()));
+        filmDtoValidator(filmDto);
+        FilmDto updatedFilm = filmStorage.updateFilm(filmDto);
+        log.info("Фильм с id = {} успешно обновлен", filmDto.getId());
         return updatedFilm;
     }
 
@@ -69,6 +70,13 @@ public class FilmService {
 
     private void filmValidator(@Valid Film film) {
         if (film.getReleaseDate().isBefore(dateCheck)) {
+            log.error("incorrect data - validation failed");
+            throw new ValidationException("date is before " + dateCheck);
+        }
+    }
+
+    private void filmDtoValidator(@Valid FilmDto filmDto) {
+        if (filmDto.getReleaseDate().isBefore(dateCheck)) {
             log.error("incorrect data - validation failed");
             throw new ValidationException("date is before " + dateCheck);
         }

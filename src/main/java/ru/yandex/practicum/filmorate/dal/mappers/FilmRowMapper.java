@@ -31,7 +31,7 @@ public class FilmRowMapper implements RowMapper<Film> {
             WHERE fl.film_id = ?
             ORDER BY fl.user_id ASC
             """;
-    private final String GET_RATING_MPA_QUERY = """
+    private final String GET_RATING_MPAA_QUERY = """
             SELECT *
             FROM rating AS r
             INNER JOIN film_rating AS fr ON r.id = fr.rating_id
@@ -45,7 +45,7 @@ public class FilmRowMapper implements RowMapper<Film> {
                 .queryForList(GET_LIKES_QUERY, Long.class, rs.getLong("id")));
         Set<Genre> genres = new HashSet<>(jdbcTemplate
                 .query(GET_GENRES_QUERY, new GenreRowMapper(), rs.getLong("id")));
-        Rating rating = jdbcTemplate.query(GET_RATING_MPA_QUERY, new RatingRowMapper(), rs.getLong("id")).getFirst();
+        Rating rating = jdbcTemplate.query(GET_RATING_MPAA_QUERY, new RatingRowMapper(), rs.getLong("id")).getFirst();
 
         Film film = Film.builder()
                 .id(rs.getLong("id"))

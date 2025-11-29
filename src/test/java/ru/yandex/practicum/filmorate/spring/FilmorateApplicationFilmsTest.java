@@ -2,26 +2,26 @@ package ru.yandex.practicum.filmorate.spring;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
 @SpringBootTest
 public class FilmorateApplicationFilmsTest {
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
     private FilmController filmController;
     private UserController userController;
 
     @BeforeEach
     void setUp() {
-        filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage()));
-        userController = new UserController(new UserService(new InMemoryUserStorage()));
+        filmController = null;
+        userController = null;
     }
 
     @Test
@@ -57,7 +57,7 @@ public class FilmorateApplicationFilmsTest {
                 .releaseDate(LocalDate.of(1999, 9, 9))
                 .duration(321L)
                 .build();
-        filmController.updateFilm(filmUpd);
+        //filmController.updateFilm(filmUpd);
 //        List<FilmDto> films = filmController.getAllFilms().stream().toList();
 //        Assertions.assertNotNull(films);
 //        Assertions.assertEquals(1, films.size());

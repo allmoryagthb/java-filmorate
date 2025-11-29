@@ -4,10 +4,12 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.dao.storage.UserStorage;
+import ru.yandex.practicum.filmorate.dal.dto.UserDto;
+import ru.yandex.practicum.filmorate.dal.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -21,9 +23,11 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public Collection<User> getAllUsers() {
+    public Collection<UserDto> getAllUsers() {
         log.info("Вернуть всех пользователей");
-        return userStorage.getAllUsers();
+        return userStorage.getAllUsers().stream()
+                .map(UserMapper::jpaToDto)
+                .toList();
     }
 
     public User addNewUser(@Valid User user) {
@@ -55,9 +59,12 @@ public class UserService {
         userStorage.removeUserFromFriends(userId, friendId);
     }
 
-    public Collection<User> getFriends(Long userId) {
+    public Collection<UserDto> getFriends(Long userId) {
         checkId(userId);
-        return userStorage.getFriends(userId);
+        return userStorage.getFriends(userId)
+                .stream()
+                .map(UserMapper::jpaToDto)
+                .toList();
     }
 
     public Collection<User> getCommonFriends(Long userId, Long otherId) {

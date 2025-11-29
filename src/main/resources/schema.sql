@@ -26,26 +26,26 @@ CREATE TABLE IF NOT EXISTS rating
 );
 CREATE TABLE IF NOT EXISTS film_genres
 (
-    film_id  BIGINT REFERENCES films (id),
-    genre_id BIGINT REFERENCES genre (id),
+    film_id  BIGINT REFERENCES films (id) ON DELETE CASCADE,
+    genre_id BIGINT REFERENCES genre (id) ON DELETE CASCADE,
     UNIQUE (film_id, genre_id)
 );
 CREATE TABLE IF NOT EXISTS film_likes
 (
-    film_id  BIGINT REFERENCES films (id),
-    user_id BIGINT REFERENCES users (id),
+    film_id  BIGINT REFERENCES films (id) ON DELETE CASCADE,
+    user_id BIGINT REFERENCES users (id) ON DELETE CASCADE,
     UNIQUE (film_id, user_id)
 );
 CREATE TABLE IF NOT EXISTS film_rating
 (
-    film_id BIGINT REFERENCES films (id),
-    rating_id BIGINT REFERENCES rating (id),
+    film_id BIGINT REFERENCES films (id) ON DELETE CASCADE,
+    rating_id BIGINT REFERENCES rating (id) ON DELETE CASCADE,
     UNIQUE (film_id)
 );
 CREATE TABLE IF NOT EXISTS friends
 (
-    id        BIGINT REFERENCES users (id),
-    friend_id BIGINT REFERENCES users (id),
+    id        BIGINT REFERENCES users (id) ON DELETE CASCADE,
+    friend_id BIGINT REFERENCES users (id) ON DELETE CASCADE,
     status    BOOLEAN,
     UNIQUE (id, friend_id)
 );
