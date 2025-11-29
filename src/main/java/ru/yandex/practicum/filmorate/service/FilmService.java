@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -12,17 +12,21 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Objects;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-
     private final LocalDate dateCheck = LocalDate.of(1895, 12, 28);
+
+    public FilmService(
+            @Qualifier("filmDbStorage") FilmStorage filmStorage,
+            @Qualifier("userDbStorage") UserStorage userStorage) {
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+    }
 
     public Collection<Film> getAllFilms() {
         log.info("Вернуть все фильмы");
@@ -57,21 +61,17 @@ public class FilmService {
         filmStorage.removeLikeFromFilm(filmId, userId);
     }
 
+    public Collection<Film> getPopular(Integer count) {
+        if (count < 1)
+            throw new ValidationException("Значение count должно быть больше нуля");
+        return null;
+    }
+
     private void filmValidator(@Valid Film film) {
         if (film.getReleaseDate().isBefore(dateCheck)) {
             log.error("incorrect data - validation failed");
             throw new ValidationException("date is before " + dateCheck);
         }
-    }
-
-    public Collection<Film> getPopular(Integer count) {
-        if (count < 1)
-            throw new ValidationException("Значение count должно быть больше нуля");
-        return filmStorage.getAllFilms()
-                .stream()
-                .sorted(Comparator.comparingLong(Film::getRating).reversed())
-                .limit(count)
-                .toList();
     }
 
     private void storagesValidator(Long filmId, Long userId) {

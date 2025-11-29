@@ -12,9 +12,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * Film.
- */
 @Getter
 @Setter
 @AllArgsConstructor
@@ -35,9 +32,21 @@ public class Film {
     private Long duration;
     @NotNull
     private final Set<Long> likesUsersIds = new HashSet<>();
+    @NotNull
+    private final Set<Genre> genres = new HashSet<>();
+    @NotNull
+    private Rating rating;
 
-    public Integer getRating() {
+    public Integer getLikes() {
         return likesUsersIds.size();
+    }
+
+    public void addLikesUsersId(Long userId) {
+        this.likesUsersIds.add(userId);
+    }
+
+    public void addGenre(Genre genre) {
+        this.genres.add(genre);
     }
 
     @Override
