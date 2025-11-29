@@ -20,7 +20,7 @@ public class UserController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Collection<UserDto> getUsers() {
+    public Collection<User> getUsers() {
         return userService.getAllUsers();
     }
 

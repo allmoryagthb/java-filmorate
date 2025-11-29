@@ -23,11 +23,9 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public Collection<UserDto> getAllUsers() {
+    public Collection<User> getAllUsers() {
         log.info("Вернуть всех пользователей");
-        return userStorage.getAllUsers().stream()
-                .map(UserMapper::jpaToDto)
-                .toList();
+        return userStorage.getAllUsers();
     }
 
     public User addNewUser(@Valid User user) {

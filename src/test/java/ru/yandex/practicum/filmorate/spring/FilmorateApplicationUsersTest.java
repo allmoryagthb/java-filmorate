@@ -51,10 +51,10 @@ public class FilmorateApplicationUsersTest {
         userController.addNewUser(user2);
 
         userController.addUserToFriend(user1.getId(), user2.getId());
-        Assertions.assertEquals(1, user1.getFriendsList().size());
-        Assertions.assertEquals(1, user2.getFriendsList().size());
-        Assertions.assertEquals(2, user1.getFriendsList().stream().toList().getFirst());
-        Assertions.assertEquals(1, user2.getFriendsList().stream().toList().getFirst());
+        Assertions.assertEquals(1, user1.getFriends().size());
+        Assertions.assertEquals(1, user2.getFriends().size());
+        Assertions.assertEquals(2, user1.getFriends().stream().toList().getFirst());
+        Assertions.assertEquals(1, user2.getFriends().stream().toList().getFirst());
     }
 
     @Test

@@ -21,7 +21,6 @@ import java.util.List;
 @AllArgsConstructor
 public class UserDbStorage implements UserStorage {
     protected JdbcTemplate jdbcTemplate;
-    private final UserRowMapper userRowMapper = new UserRowMapper();
     private final static String GET_USERS = """
             SELECT *
             FROM users
@@ -54,16 +53,23 @@ public class UserDbStorage implements UserStorage {
             WHERE friends.id = ? AND friends.friend_id = ?
             """;
     private final static String ADD_FRIENDSHIP_REQUEST = """
-            INSERT INTO friends(id, friend_id, status)
-            VALUES (?, ?,?)
+            INSERT INTO friends (id, friend_id, status)
+            VALUES (?, ?, ?)
             """;
-    private final static String UPDATE_FRIENDSHIP_STATUS = """
-            
+    private final static String UPDATE_FRIENDSHIP_STATUS_ONE_USER = """
+            UPDATE friends
+            SET status = ?
+            WHERE id = ? AND friend_id = ?
+            """;
+    private final static String UPDATE_FRIENDSHIP_STATUS_BOTH_USERS = """
+            UPDATE friends
+            SET status = ?
+            WHERE id IN (?, ?) AND friend_id IN (?, ?)
             """;
 
     @Override
     public Collection<User> getAllUsers() {
-        return jdbcTemplate.query(GET_USERS, userRowMapper);
+        return jdbcTemplate.query(GET_USERS, new UserRowMapper(jdbcTemplate));
     }
 
     @Override
@@ -103,8 +109,12 @@ public class UserDbStorage implements UserStorage {
     public void addUserToFriend(Long userId, Long friendId) {
         if (!checkFriendshipRequestExists(userId, friendId)) {
             jdbcTemplate.update(ADD_FRIENDSHIP_REQUEST, userId, friendId, false);
+            if (checkFriendshipRequestExists(friendId, userId)) {
+                jdbcTemplate.update(UPDATE_FRIENDSHIP_STATUS_BOTH_USERS, true, userId, friendId, userId, friendId);
+            }
+        } else {
+            throw new ValidationException("Пользователь уже добавлен в друзья");
         }
-        throw new ValidationException("Пользователь уже добавлен в друзья");
     }
 
     @Override
@@ -114,7 +124,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Collection<User> getFriends(Long userId) {
-        return jdbcTemplate.query(GET_USER_FRIENDS, userRowMapper, userId);
+        return jdbcTemplate.query(GET_USER_FRIENDS, new UserRowMapper(jdbcTemplate), userId);
     }
 
     @Override
