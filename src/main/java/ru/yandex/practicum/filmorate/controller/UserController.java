@@ -33,7 +33,7 @@ public class UserController {
 
     @GetMapping("/{userId}/friends/common/{otherId}")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<User> getCommonFriends(
+    public Collection<UserDto> getCommonFriends(
             @PathVariable(value = "userId") Long userId,
             @PathVariable(value = "otherId") Long otherId) {
         return userService.getCommonFriends(userId, otherId);
@@ -47,7 +47,7 @@ public class UserController {
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public User updateUser(@RequestBody @Valid User user) {
+    public UserDto updateUser(@RequestBody @Valid User user) {
         return userService.updateUser(user);
     }
 

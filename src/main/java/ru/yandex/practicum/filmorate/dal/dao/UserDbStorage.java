@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.dao.storage.UserStorage;
+import ru.yandex.practicum.filmorate.dal.dto.UserDto;
+import ru.yandex.practicum.filmorate.dal.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.dal.mappers.UserRowMapper;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -14,7 +16,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Collection;
-import java.util.List;
 
 @Slf4j
 @Repository
@@ -42,6 +43,14 @@ public class UserDbStorage implements UserStorage {
             INSERT INTO users (email, login, name, birthday)
             VALUES (?, ?, ?, ?)
             """;
+    private final static String UPDATE_USER = """
+            UPDATE users
+            SET email = ?,
+                login = ?,
+                name = ?,
+                birthday = ?
+            WHERE id = ?
+            """;
     private final static String CHECK_FRIENDSHIP_REQUEST_EXISTS = """
             SELECT COUNT(*)
             FROM friends
@@ -65,6 +74,10 @@ public class UserDbStorage implements UserStorage {
             UPDATE friends
             SET status = ?
             WHERE id IN (?, ?) AND friend_id IN (?, ?)
+            """;
+    private final static String DELETE_FRIENDSHIP = """
+            DELETE FROM friends
+            WHERE id = ? AND friend_id = ?
             """;
 
     @Override
@@ -96,8 +109,14 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(User user) {
-        return null;
+    public UserDto updateUser(User user) {
+        UserDto userDto = UserMapper.jpaToDto(user);
+        jdbcTemplate.update(
+                UPDATE_USER,
+                userDto.getEmail(),
+                userDto.getName(),
+                userDto.getBirthday());
+        return userDto;
     }
 
     @Override
@@ -119,7 +138,9 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void removeUserFromFriends(Long userId, Long friendId) {
-
+        jdbcTemplate.update(DELETE_FRIENDSHIP, userId, friendId);
+        if (checkFriendshipRequestExists(friendId, userId))
+            jdbcTemplate.update(UPDATE_FRIENDSHIP_STATUS_ONE_USER, false, friendId, userId);
     }
 
     @Override
@@ -128,15 +149,17 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Collection<User> getCommonFriends(Long userId, Long otherId) {
-        return List.of();
+    public Collection<User> getCommonFriends(Long userId, Long friendId) {
+        Collection<User> userFriends = getFriends(userId);
+        userFriends.retainAll(getFriends(friendId));
+        return userFriends;
     }
 
-    public boolean checkFriendshipRequestExists(Long userId, Long friendId) {
+    private boolean checkFriendshipRequestExists(Long userId, Long friendId) {
         return jdbcTemplate.queryForObject(CHECK_FRIENDSHIP_REQUEST_EXISTS, Long.class, userId, friendId) == 1;
     }
 
-    public boolean checkFriendshipApproved(Long userId, Long friendId) {
+    private boolean checkFriendshipApproved(Long userId, Long friendId) {
         return jdbcTemplate.queryForObject(CHECK_FRIENDSHIP_APPROVED, Boolean.class, userId, friendId);
     }
 }

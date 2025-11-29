@@ -35,10 +35,10 @@ public class UserService {
         return user;
     }
 
-    public User updateUser(@Valid User user) {
+    public UserDto updateUser(@Valid User user) {
         checkId(user.getId());
         userValidator(user);
-        User updUser = userStorage.updateUser(user);
+        UserDto updUser = userStorage.updateUser(user);
         log.info("Пользователь с id = {} успешно обновлен", updUser.getId());
         return updUser;
     }
@@ -65,11 +65,11 @@ public class UserService {
                 .toList();
     }
 
-    public Collection<User> getCommonFriends(Long userId, Long otherId) {
+    public Collection<UserDto> getCommonFriends(Long userId, Long otherId) {
         checkId(userId);
         checkId(otherId);
         checkIfIdsAreEquals(userId, otherId);
-        return userStorage.getCommonFriends(userId, otherId);
+        return userStorage.getCommonFriends(userId, otherId).stream().map(UserMapper::jpaToDto).toList();
     }
 
     private void userValidator(@Valid User user) {
