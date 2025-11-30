@@ -15,24 +15,24 @@ import java.util.Collection;
 @AllArgsConstructor
 public class GenreDbStorage implements GenreStorage {
     protected JdbcTemplate jdbcTemplate;
-    private final String GET_ALL_GENRES = """
-            SELECT *
-            FROM genre
-            ORDER BY id ASC
-            """;
-    private final String GET_GENRE_BY_ID = """
-            SELECT *
-            FROM genre
-            WHERE id = ?
-            """;
 
     @Override
     public Collection<Genre> getAllGenres() {
-        return jdbcTemplate.query(GET_ALL_GENRES, new GenreRowMapper());
+        String getAllGenres = """
+                SELECT *
+                FROM genre
+                ORDER BY id ASC
+                """;
+        return jdbcTemplate.query(getAllGenres, new GenreRowMapper());
     }
 
     @Override
     public Genre getGenreById(Long id) {
-        return jdbcTemplate.queryForObject(GET_GENRE_BY_ID, new GenreRowMapper(), id);
+        String getGenreById = """
+                SELECT *
+                FROM genre
+                WHERE id = ?
+                """;
+        return jdbcTemplate.queryForObject(getGenreById, new GenreRowMapper(), id);
     }
 }
