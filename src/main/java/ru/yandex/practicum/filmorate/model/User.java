@@ -30,7 +30,15 @@ public class User {
     @Past
     private LocalDate birthday;
     @NotNull
-    private final Set<Long> friendsList = new HashSet<>();
+    private final Set<Long> friends = new HashSet<>();
+
+    public void addIdToFriends(Long id) {
+        this.friends.add(id);
+    }
+
+    public void removeIdFromFriends(Long id) {
+        this.friends.remove(id);
+    }
 
     @Override
     public boolean equals(Object o) {

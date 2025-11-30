@@ -1,26 +1,40 @@
 package ru.yandex.practicum.filmorate.service;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.dao.storage.UserStorage;
+import ru.yandex.practicum.filmorate.dal.dto.UserDto;
+import ru.yandex.practicum.filmorate.dal.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 import java.util.Objects;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
+
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
 
     public Collection<User> getAllUsers() {
         log.info("Вернуть всех пользователей");
         return userStorage.getAllUsers();
+    }
+
+    public User getUserById(Long id) {
+        try {
+            return userStorage.getUserById(id).orElseThrow();
+        } catch (EmptyResultDataAccessException e) {
+            throw new EntityNotFoundException("404 Not Found");
+        }
     }
 
     public User addNewUser(@Valid User user) {
@@ -52,16 +66,19 @@ public class UserService {
         userStorage.removeUserFromFriends(userId, friendId);
     }
 
-    public Collection<User> getFriends(Long userId) {
+    public Collection<UserDto> getFriends(Long userId) {
         checkId(userId);
-        return userStorage.getFriends(userId);
+        return userStorage.getFriends(userId)
+                .stream()
+                .map(UserMapper::jpaToDto)
+                .toList();
     }
 
-    public Collection<User> getCommonFriends(Long userId, Long otherId) {
+    public Collection<UserDto> getCommonFriends(Long userId, Long otherId) {
         checkId(userId);
         checkId(otherId);
         checkIfIdsAreEquals(userId, otherId);
-        return userStorage.getCommonFriends(userId, otherId);
+        return userStorage.getCommonFriends(userId, otherId).stream().map(UserMapper::jpaToDto).toList();
     }
 
     private void userValidator(@Valid User user) {

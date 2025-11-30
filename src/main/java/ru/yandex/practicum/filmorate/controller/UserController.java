@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dal.dto.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -23,16 +24,21 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @GetMapping("/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public User getUserById(@PathVariable(value = "userId") Long userId) {
+        return userService.getUserById(userId);
+    }
+
     @GetMapping("/{userId}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<User> getFriends(
-            @PathVariable(value = "userId") Long userId) {
+    public Collection<UserDto> getFriends(@PathVariable(value = "userId") Long userId) {
         return userService.getFriends(userId);
     }
 
     @GetMapping("/{userId}/friends/common/{otherId}")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<User> getCommonFriends(
+    public Collection<UserDto> getCommonFriends(
             @PathVariable(value = "userId") Long userId,
             @PathVariable(value = "otherId") Long otherId) {
         return userService.getCommonFriends(userId, otherId);
