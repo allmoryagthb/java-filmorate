@@ -15,12 +15,12 @@ import java.util.Collection;
 @AllArgsConstructor
 public class GenreDbStorage implements GenreStorage {
     protected JdbcTemplate jdbcTemplate;
-    private final static String GET_ALL_GENRES = """
+    private static final String GET_ALL_GENRES = """
             SELECT *
             FROM genre
             ORDER BY id ASC
             """;
-    private final static String GET_GENRE_BY_ID = """
+    private static final String GET_GENRE_BY_ID = """
             SELECT *
             FROM genre
             WHERE id = ?

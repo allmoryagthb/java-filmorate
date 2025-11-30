@@ -24,35 +24,35 @@ import java.util.Optional;
 @AllArgsConstructor
 public class UserDbStorage implements UserStorage {
     protected JdbcTemplate jdbcTemplate;
-    private final static String GET_USERS = """
+    private static final String GET_USERS = """
             SELECT *
             FROM users
             ORDER BY users.id ASC
             """;
-    private final static String GET_USER_BY_ID = """
+    private static final String GET_USER_BY_ID = """
             SELECT *
             FROM users
             WHERE id = ?
             """;
-private final static String GET_USER_FRIENDS = """
-        SELECT *
-        FROM users
-        WHERE users.id IN (SELECT friends.friend_id
-                           FROM friends
-                           WHERE friends.id = ?
-                           )
-        ORDER BY id
-        """;
-    private final static String GET_USER_COUNT_BY_ID = """
+    private static final String GET_USER_FRIENDS = """
+            SELECT *
+            FROM users
+            WHERE users.id IN (SELECT friends.friend_id
+                               FROM friends
+                               WHERE friends.id = ?
+                               )
+            ORDER BY id
+            """;
+    private static final String GET_USER_COUNT_BY_ID = """
             SELECT COUNT(*)
             FROM users
             WHERE users.id = ?
             """;
-    private final static String ADD_NEW_USER = """
+    private static final String ADD_NEW_USER = """
             INSERT INTO users (email, login, name, birthday)
             VALUES (?, ?, ?, ?)
             """;
-    private final static String UPDATE_USER = """
+    private static final String UPDATE_USER = """
             UPDATE users
             SET email = ?,
                 login = ?,
@@ -60,35 +60,35 @@ private final static String GET_USER_FRIENDS = """
                 birthday = ?
             WHERE id = ?
             """;
-    private final static String CHECK_FRIENDSHIP_REQUEST_EXISTS = """
+    private static final String CHECK_FRIENDSHIP_REQUEST_EXISTS = """
             SELECT COUNT(*)
             FROM friends
             WHERE friends.id = ? AND friends.friend_id = ?
             """;
-    private final static String CHECK_FRIENDSHIP_APPROVED = """
+    private static final String CHECK_FRIENDSHIP_APPROVED = """
             SELECT status
             FROM friends
             WHERE friends.id = ? AND friends.friend_id = ?
             """;
-    private final static String ADD_FRIENDSHIP_REQUEST = """
+    private static final String ADD_FRIENDSHIP_REQUEST = """
             INSERT INTO friends (id, friend_id, status)
             VALUES (?, ?, ?)
             """;
-    private final static String UPDATE_FRIENDSHIP_STATUS_ONE_USER = """
+    private static final String UPDATE_FRIENDSHIP_STATUS_ONE_USER = """
             UPDATE friends
             SET status = ?
             WHERE id = ? AND friend_id = ?
             """;
-    private final static String UPDATE_FRIENDSHIP_STATUS_BOTH_USERS = """
+    private static final String UPDATE_FRIENDSHIP_STATUS_BOTH_USERS = """
             UPDATE friends
             SET status = ?
             WHERE id IN (?, ?) AND friend_id IN (?, ?)
             """;
-    private final static String DELETE_FRIENDSHIP = """
+    private static final String DELETE_FRIENDSHIP = """
             DELETE FROM friends
             WHERE id = ? AND friend_id = ?
             """;
-    private final static String GET_FRIENDSHIP_STATUS = """
+    private static final String GET_FRIENDSHIP_STATUS = """
             SELECT status
             FROM friends
             WHERE id = ? AND friend_id = ?

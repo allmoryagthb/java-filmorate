@@ -17,12 +17,12 @@ import java.util.Collection;
 @AllArgsConstructor
 public class RatingDbStorage implements RatingStorage {
     private JdbcTemplate jdbcTemplate;
-    private final static String GET_ALL_RATINGS = """
+    private static final String GET_ALL_RATINGS = """
             SELECT *
             FROM rating
             ORDER BY id ASC
             """;
-    private final static String GET_RATING_BY_ID = """
+    private static final String GET_RATING_BY_ID = """
             SELECT *
             FROM rating
             WHERE id = ?
