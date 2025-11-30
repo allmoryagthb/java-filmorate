@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.dao.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.dao.storage.UserStorage;
@@ -32,6 +33,14 @@ public class FilmService {
     public Collection<Film> getAllFilms() {
         log.info("Вернуть все фильмы");
         return filmStorage.getAllFilms();
+    }
+
+    public Film getFilmById(Long id) {
+        try {
+            return filmStorage.getFilmById(id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new EntityNotFoundException("404 Not Found");
+        }
     }
 
     public Film addNewFilm(Film film) {

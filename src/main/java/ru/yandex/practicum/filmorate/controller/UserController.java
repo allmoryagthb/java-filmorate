@@ -24,6 +24,12 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @GetMapping("/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public User getUserById(@PathVariable(value = "userId") Long userId) {
+        return userService.getUserById(userId);
+    }
+
     @GetMapping("/{userId}/friends")
     @ResponseStatus(HttpStatus.OK)
     public Collection<UserDto> getFriends(@PathVariable(value = "userId") Long userId) {

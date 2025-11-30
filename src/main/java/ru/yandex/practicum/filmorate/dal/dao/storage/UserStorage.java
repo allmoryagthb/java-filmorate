@@ -4,9 +4,12 @@ import ru.yandex.practicum.filmorate.dal.dto.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface UserStorage {
     Collection<User> getAllUsers();
+
+    Optional<User> getUserById(Long id);
 
     void addNewUser(User user);
 

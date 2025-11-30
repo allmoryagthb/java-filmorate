@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.dao.storage.UserStorage;
 import ru.yandex.practicum.filmorate.dal.dto.UserDto;
@@ -26,6 +27,14 @@ public class UserService {
     public Collection<User> getAllUsers() {
         log.info("Вернуть всех пользователей");
         return userStorage.getAllUsers();
+    }
+
+    public User getUserById(Long id) {
+        try {
+            return userStorage.getUserById(id).orElseThrow();
+        } catch (EmptyResultDataAccessException e) {
+            throw new EntityNotFoundException("404 Not Found");
+        }
     }
 
     public User addNewUser(@Valid User user) {

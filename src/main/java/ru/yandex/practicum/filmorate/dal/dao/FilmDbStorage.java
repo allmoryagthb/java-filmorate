@@ -27,6 +27,11 @@ public class FilmDbStorage implements FilmStorage {
             FROM films
             ORDER BY films.id ASC
             """;
+    private static final String GET_FILM_BY_ID = """
+            SELECT *
+            FROM films
+            WHERE id = ?
+            """;
     private static final String INSERT_FILM = """
             INSERT INTO films (name, description, releaseDate, duration)
             VALUES (?, ?, ?, ?)
@@ -64,6 +69,11 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Collection<Film> getAllFilms() {
         return jdbcTemplate.query(GET_FILMS, new FilmRowMapper(jdbcTemplate));
+    }
+
+    @Override
+    public Film getFilmById(Long id) {
+        return jdbcTemplate.queryForObject(GET_FILM_BY_ID, new FilmRowMapper(jdbcTemplate), id);
     }
 
     @Override
