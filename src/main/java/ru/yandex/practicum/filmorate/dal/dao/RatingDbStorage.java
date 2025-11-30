@@ -17,26 +17,26 @@ import java.util.Collection;
 @AllArgsConstructor
 public class RatingDbStorage implements RatingStorage {
     private JdbcTemplate jdbcTemplate;
-    private static final String GET_ALL_RATINGS = """
-            SELECT *
-            FROM rating
-            ORDER BY id ASC
-            """;
-    private static final String GET_RATING_BY_ID = """
-            SELECT *
-            FROM rating
-            WHERE id = ?
-            """;
 
     @Override
     public Collection<Rating> getAllRatings() {
-        return jdbcTemplate.query(GET_ALL_RATINGS, new RatingRowMapper());
+        String getAllRatings = """
+                SELECT *
+                FROM rating
+                ORDER BY id ASC
+                """;
+        return jdbcTemplate.query(getAllRatings, new RatingRowMapper());
     }
 
     @Override
     public Rating getRatingById(Long id) {
+        String getRatingById = """
+                SELECT *
+                FROM rating
+                WHERE id = ?
+                """;
         try {
-            return jdbcTemplate.queryForObject(GET_RATING_BY_ID, new RatingRowMapper(), id);
+            return jdbcTemplate.queryForObject(getRatingById, new RatingRowMapper(), id);
         } catch (DataAccessException e) {
             throw new EntityNotFoundException("404 Not Found");
         }
