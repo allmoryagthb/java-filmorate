@@ -52,7 +52,7 @@ public class UserController {
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public UserDto updateUser(@RequestBody @Valid User user) {
+    public User updateUser(@RequestBody @Valid User user) {
         return userService.updateUser(user);
     }
 

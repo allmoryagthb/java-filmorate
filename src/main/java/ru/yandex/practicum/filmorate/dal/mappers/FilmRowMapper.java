@@ -7,12 +7,14 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Component
@@ -34,19 +36,23 @@ public class FilmRowMapper implements RowMapper<Film> {
             """;
     private final String GET_RATING_MPAA_QUERY = """
             SELECT *
-            FROM rating AS r
-            INNER JOIN film_rating AS fr ON r.id = fr.rating_id
-            WHERE fr.film_id = ?
-            ORDER BY fr.rating_id ASC
+            FROM mpa
+            INNER JOIN film_mpa AS fm ON mpa.id = fm.mpa_id
+            WHERE fm.film_id = ?
+            ORDER BY fm.mpa_id ASC
             """;
 
     @Override
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
         Set<Long> userIdsLikes = new HashSet<>(jdbcTemplate
                 .queryForList(GET_LIKES_QUERY, Long.class, rs.getLong("id")));
-        Set<Genre> genres = new HashSet<>(jdbcTemplate
-                .query(GET_GENRES_QUERY, new GenreRowMapper(), rs.getLong("id")));
-        Rating rating;
+        Set<Genre> genres = new LinkedHashSet<>((jdbcTemplate
+                .query(GET_GENRES_QUERY, new GenreRowMapper(),
+                        rs.getLong("id"))
+                .stream()
+                .sorted(Comparator.comparing(Genre::getId))
+                .toList()));
+        Mpa rating;
         try {
             rating = jdbcTemplate.queryForObject(GET_RATING_MPAA_QUERY, new RatingRowMapper(), rs.getLong("id"));
         } catch (EmptyResultDataAccessException e) {
@@ -59,7 +65,7 @@ public class FilmRowMapper implements RowMapper<Film> {
                 .description(rs.getString("description"))
                 .releaseDate(rs.getObject("releaseDate", LocalDate.class))
                 .duration(rs.getLong("duration"))
-                .rating(rating)
+                .mpa(rating)
                 .build();
 
         for (Long id : userIdsLikes)

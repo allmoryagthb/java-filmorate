@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.springframework.stereotype.Component;
 
@@ -10,8 +9,8 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @Builder
 @Component
+@EqualsAndHashCode
 public class Genre {
     private Long id;
-    @NotBlank
     private String name;
 }

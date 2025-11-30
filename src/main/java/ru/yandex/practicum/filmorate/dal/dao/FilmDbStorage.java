@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.dal.dao;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -9,6 +10,7 @@ import ru.yandex.practicum.filmorate.dal.dao.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dal.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.dal.mappers.FilmRowMapper;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -16,6 +18,9 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -41,7 +46,7 @@ public class FilmDbStorage implements FilmStorage {
             VALUES (?, ?)
             """;
     private static final String INSERT_FILM_RATING = """
-            INSERT INTO film_rating (film_id, rating_id)
+            INSERT INTO film_mpa (film_id, mpa_id)
             VALUES (?, ?)
             """;
     private static final String UPDATE_FILM = """
@@ -102,18 +107,23 @@ public class FilmDbStorage implements FilmStorage {
 
         // --- Добавление жанров фильма в БД ---
         if (!film.getGenres().isEmpty()) {
+            film.setGenres(film.getGenres().stream().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toCollection(LinkedHashSet::new)));
             for (Genre genre : film.getGenres()) {
-                int rows = jdbcTemplate.update(INSERT_FILM_GENRES, film.getId(), genre.getId());
-                if (rows < 1)
-                    throw new InternalServerException("Не удалось сохранить данные");
+                try {
+                    jdbcTemplate.update(INSERT_FILM_GENRES, film.getId(), genre.getId());
+                } catch (DataAccessException e) {
+                    throw new EntityNotFoundException("404 Not Found - No Such Genre");
+                }
             }
         }
 
         // --- Добавление рейтинга фильма в БД ---
-        if (film.getRating() != null) {
-            int rows = jdbcTemplate.update(INSERT_FILM_RATING, film.getId(), film.getRating().getId());
-            if (rows < 1)
-                throw new InternalServerException("Не удалось сохранить данные");
+        if (film.getMpa() != null) {
+            try {
+                jdbcTemplate.update(INSERT_FILM_RATING, film.getId(), film.getMpa().getId());
+            } catch (DataAccessException e) {
+                throw new EntityNotFoundException("404 Not Found - No Such Mpa");
+            }
         }
     }
 

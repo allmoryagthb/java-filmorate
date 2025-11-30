@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @Builder
 @Component
-public class Rating {
+public class Mpa {
     private Long id;
     @NotBlank
     private String name;

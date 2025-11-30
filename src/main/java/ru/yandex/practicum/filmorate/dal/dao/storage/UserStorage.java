@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dal.dao.storage;
 
-import ru.yandex.practicum.filmorate.dal.dto.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -13,7 +12,7 @@ public interface UserStorage {
 
     void addNewUser(User user);
 
-    UserDto updateUser(User user);
+    User updateUser(User user);
 
     boolean checkUserExistsById(Long userId);
 

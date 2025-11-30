@@ -8,9 +8,7 @@ import lombok.*;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -33,8 +31,8 @@ public class Film {
     @NotNull
     private final Set<Long> likesUsersIds = new HashSet<>();
     @NotNull
-    private final Set<Genre> genres = new HashSet<>();
-    private Rating rating;
+    private Set<Genre> genres = new HashSet<>();
+    private Mpa mpa;
 
     public Integer getLikes() {
         return likesUsersIds.size();
@@ -45,6 +43,8 @@ public class Film {
     }
 
     public void addGenre(Genre genre) {
+        if (genres == null)
+            genres = new TreeSet<>(Comparator.comparingLong(Genre::getId));
         this.genres.add(genre);
     }
 

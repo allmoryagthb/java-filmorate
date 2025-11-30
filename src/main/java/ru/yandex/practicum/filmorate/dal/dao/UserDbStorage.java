@@ -6,8 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.dao.storage.UserStorage;
-import ru.yandex.practicum.filmorate.dal.dto.UserDto;
-import ru.yandex.practicum.filmorate.dal.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.dal.mappers.UserRowMapper;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
@@ -55,7 +53,6 @@ public class UserDbStorage implements UserStorage {
     private static final String UPDATE_USER = """
             UPDATE users
             SET email = ?,
-                login = ?,
                 name = ?,
                 birthday = ?
             WHERE id = ?
@@ -127,14 +124,14 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public UserDto updateUser(User user) {
-        UserDto userDto = UserMapper.jpaToDto(user);
+    public User updateUser(User user) {
         jdbcTemplate.update(
                 UPDATE_USER,
-                userDto.getEmail(),
-                userDto.getName(),
-                userDto.getBirthday());
-        return userDto;
+                user.getEmail(),
+                user.getName(),
+                user.getBirthday(),
+                user.getId());
+        return user;
     }
 
     @Override

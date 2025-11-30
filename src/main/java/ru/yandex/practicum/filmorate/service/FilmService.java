@@ -74,7 +74,11 @@ public class FilmService {
     public Collection<Film> getPopular(Integer count) {
         if (count < 1)
             throw new ValidationException("Значение count должно быть больше нуля");
-        return null;
+        return filmStorage.getAllFilms()
+                .stream()
+                .sorted((f1, f2) -> f2.getLikes() - f1.getLikes())
+                .limit(count)
+                .toList();
     }
 
     private void filmValidator(@Valid Film film) {

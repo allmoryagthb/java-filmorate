@@ -5,38 +5,38 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.dao.storage.RatingStorage;
+import ru.yandex.practicum.filmorate.dal.dao.storage.MpaStorage;
 import ru.yandex.practicum.filmorate.dal.mappers.RatingRowMapper;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.Collection;
 
 @Slf4j
 @Repository
 @AllArgsConstructor
-public class RatingDbStorage implements RatingStorage {
+public class MpaDbStorage implements MpaStorage {
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public Collection<Rating> getAllRatings() {
+    public Collection<Mpa> getAllMpas() {
         String getAllRatings = """
                 SELECT *
-                FROM rating
+                FROM mpa
                 ORDER BY id ASC
                 """;
         return jdbcTemplate.query(getAllRatings, new RatingRowMapper());
     }
 
     @Override
-    public Rating getRatingById(Long id) {
-        String getRatingById = """
+    public Mpa getMpaById(Long id) {
+        String getMpaById = """
                 SELECT *
-                FROM rating
+                FROM mpa
                 WHERE id = ?
                 """;
         try {
-            return jdbcTemplate.queryForObject(getRatingById, new RatingRowMapper(), id);
+            return jdbcTemplate.queryForObject(getMpaById, new RatingRowMapper(), id);
         } catch (DataAccessException e) {
             throw new EntityNotFoundException("404 Not Found");
         }

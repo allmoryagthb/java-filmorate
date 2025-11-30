@@ -44,10 +44,10 @@ public class UserService {
         return user;
     }
 
-    public UserDto updateUser(@Valid User user) {
+    public User updateUser(@Valid User user) {
         checkId(user.getId());
         userValidator(user);
-        UserDto updUser = userStorage.updateUser(user);
+        User updUser = userStorage.updateUser(user);
         log.info("Пользователь с id = {} успешно обновлен", updUser.getId());
         return updUser;
     }

@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dal.dao.RatingDbStorage;
-import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.dal.dao.MpaDbStorage;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.Collection;
 
@@ -12,13 +12,13 @@ import java.util.Collection;
 @Service
 @AllArgsConstructor
 public class RatingService {
-    private final RatingDbStorage ratingDbStorage;
+    private final MpaDbStorage ratingDbStorage;
 
-    public Collection<Rating> getAllRatings() {
-        return ratingDbStorage.getAllRatings();
+    public Collection<Mpa> getAllRatings() {
+        return ratingDbStorage.getAllMpas();
     }
 
-    public Rating getRatingById(Long ratingId) {
-        return ratingDbStorage.getRatingById(ratingId);
+    public Mpa getRatingById(Long ratingId) {
+        return ratingDbStorage.getMpaById(ratingId);
     }
 }

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.RatingService;
 
 import java.util.Collection;
@@ -18,13 +18,13 @@ public class RatingController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Collection<Rating> getAllRatings() {
+    public Collection<Mpa> getAllRatings() {
         return ratingService.getAllRatings();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Rating getGenreById(@PathVariable(value = "id") Long ratingId) {
+    public Mpa getGenreById(@PathVariable(value = "id") Long ratingId) {
         return ratingService.getRatingById(ratingId);
     }
 }
