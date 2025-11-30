@@ -21,40 +21,40 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class FilmRowMapper implements RowMapper<Film> {
     private final JdbcTemplate jdbcTemplate;
-    private final String GET_GENRES_QUERY = """
-            SELECT *
-            FROM genre AS g
-            INNER JOIN film_genres AS fg ON g.id = fg.genre_id
-            WHERE fg.film_id = ?
-            ORDER BY fg.genre_id ASC
-            """;
-    private final String GET_LIKES_QUERY = """
-            SELECT fl.user_id
-            FROM film_likes AS fl
-            WHERE fl.film_id = ?
-            ORDER BY fl.user_id ASC
-            """;
-    private final String GET_RATING_MPAA_QUERY = """
-            SELECT *
-            FROM mpa
-            INNER JOIN film_mpa AS fm ON mpa.id = fm.mpa_id
-            WHERE fm.film_id = ?
-            ORDER BY fm.mpa_id ASC
-            """;
 
     @Override
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
+        String getLikesQuery = """
+                SELECT fl.user_id
+                FROM film_likes AS fl
+                WHERE fl.film_id = ?
+                ORDER BY fl.user_id ASC
+                """;
         Set<Long> userIdsLikes = new HashSet<>(jdbcTemplate
-                .queryForList(GET_LIKES_QUERY, Long.class, rs.getLong("id")));
+                .queryForList(getLikesQuery, Long.class, rs.getLong("id")));
+        String getGenresQuery = """
+                SELECT *
+                FROM genre AS g
+                INNER JOIN film_genres AS fg ON g.id = fg.genre_id
+                WHERE fg.film_id = ?
+                ORDER BY fg.genre_id ASC
+                """;
         Set<Genre> genres = new LinkedHashSet<>((jdbcTemplate
-                .query(GET_GENRES_QUERY, new GenreRowMapper(),
+                .query(getGenresQuery, new GenreRowMapper(),
                         rs.getLong("id"))
                 .stream()
                 .sorted(Comparator.comparing(Genre::getId))
                 .toList()));
         Mpa rating;
         try {
-            rating = jdbcTemplate.queryForObject(GET_RATING_MPAA_QUERY, new RatingRowMapper(), rs.getLong("id"));
+            String getRatingMpaaQuery = """
+                    SELECT *
+                    FROM mpa
+                    INNER JOIN film_mpa AS fm ON mpa.id = fm.mpa_id
+                    WHERE fm.film_id = ?
+                    ORDER BY fm.mpa_id ASC
+                    """;
+            rating = jdbcTemplate.queryForObject(getRatingMpaaQuery, new RatingRowMapper(), rs.getLong("id"));
         } catch (EmptyResultDataAccessException e) {
             rating = null;
         }
