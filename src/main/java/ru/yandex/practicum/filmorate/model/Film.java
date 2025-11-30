@@ -48,6 +48,12 @@ public class Film {
         this.genres.add(genre);
     }
 
+    public Set<Genre> getGenres() {
+        if (genres == null)
+            genres = new HashSet<>();
+        return genres;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
