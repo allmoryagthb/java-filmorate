@@ -1,10 +1,13 @@
-package ru.yandex.practicum.filmorate.spring;
+package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.dal.dao.UserDbStorage;
+import ru.yandex.practicum.filmorate.dal.dto.UserDto;
+import ru.yandex.practicum.filmorate.dal.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -13,12 +16,10 @@ import java.util.List;
 
 @SpringBootTest
 public class FilmorateApplicationUsersTest {
+    @Autowired
     private UserController userController;
-
-    @BeforeEach
-    void setUp() {
-        userController = null;
-    }
+    @Autowired
+    private UserDbStorage userDbStorage;
 
     @Test
     void getUsersList() {
@@ -31,8 +32,7 @@ public class FilmorateApplicationUsersTest {
 
         List<User> users = userController.getUsers().stream().toList();
         Assertions.assertNotNull(users);
-        Assertions.assertEquals(1, users.size());
-        Assertions.assertEquals(user, users.getFirst());
+        Assertions.assertEquals(user, users.get(Math.toIntExact(user.getId()) - 1));
     }
 
     @Test
@@ -51,14 +51,17 @@ public class FilmorateApplicationUsersTest {
         userController.addNewUser(user2);
 
         userController.addUserToFriend(user1.getId(), user2.getId());
-        Assertions.assertEquals(1, user1.getFriends().size());
-        Assertions.assertEquals(1, user2.getFriends().size());
-        Assertions.assertEquals(2, user1.getFriends().stream().toList().getFirst());
-        Assertions.assertEquals(1, user2.getFriends().stream().toList().getFirst());
+
+        List<UserDto> user1Friends = userController.getFriends(user1.getId()).stream().toList();
+        List<UserDto> user2Friends = userController.getFriends(user2.getId()).stream().toList();
+
+        Assertions.assertEquals(1, user1Friends.size());
+        Assertions.assertEquals(0, user2Friends.size());
+        Assertions.assertEquals(UserMapper.jpaToDto(user2), user1Friends.getFirst());
     }
 
     @Test
-    void getUsersFriendsList() {
+    void checkUsersFriendshipStatusAfter() {
         User user1 = User.builder()
                 .email("test1@test.net")
                 .login("testUser1")
@@ -69,67 +72,19 @@ public class FilmorateApplicationUsersTest {
                 .login("testUser2")
                 .birthday(LocalDate.of(1991, 1, 1))
                 .build();
-        User user3 = User.builder()
-                .email("test3@test.net")
-                .login("testUser3")
-                .birthday(LocalDate.of(1991, 1, 1))
-                .build();
-        User user4 = User.builder()
-                .email("test4@test.net")
-                .login("testUser4")
-                .birthday(LocalDate.of(1991, 1, 1))
-                .build();
 
         userController.addNewUser(user1);
         userController.addNewUser(user2);
-        userController.addNewUser(user3);
-        userController.addNewUser(user4);
 
         userController.addUserToFriend(user1.getId(), user2.getId());
-        userController.addUserToFriend(user1.getId(), user4.getId());
+        Assertions.assertFalse(userDbStorage.getFriendshipStatus(user1.getId(), user2.getId()));
 
-//        List<User> friendsList = userController.getFriends(user1.getId()).stream().toList();
-//        Assertions.assertEquals(2, friendsList.size());
-//        Assertions.assertEquals(user2, friendsList.getFirst());
-//        Assertions.assertEquals(user4, friendsList.getLast());
-    }
-
-    @Test
-    void deleteUserFromFriends() {
-        User user1 = User.builder()
-                .email("test1@test.net")
-                .login("testUser1")
-                .birthday(LocalDate.of(1991, 1, 1))
-                .build();
-        User user2 = User.builder()
-                .email("test2@test.net")
-                .login("testUser2")
-                .birthday(LocalDate.of(1991, 1, 1))
-                .build();
-        User user3 = User.builder()
-                .email("test3@test.net")
-                .login("testUser3")
-                .birthday(LocalDate.of(1991, 1, 1))
-                .build();
-        User user4 = User.builder()
-                .email("test4@test.net")
-                .login("testUser4")
-                .birthday(LocalDate.of(1991, 1, 1))
-                .build();
-
-        userController.addNewUser(user1);
-        userController.addNewUser(user2);
-        userController.addNewUser(user3);
-        userController.addNewUser(user4);
-
-        userController.addUserToFriend(user1.getId(), user2.getId());
-        userController.addUserToFriend(user1.getId(), user4.getId());
+        userController.addUserToFriend(user2.getId(), user1.getId());
+        Assertions.assertTrue(userDbStorage.getFriendshipStatus(user1.getId(), user2.getId()));
+        Assertions.assertTrue(userDbStorage.getFriendshipStatus(user2.getId(), user1.getId()));
 
         userController.removeUserFromFriends(user1.getId(), user2.getId());
-
-//        List<User> friendsList = userController.getFriends(user1.getId()).stream().toList();
-//        Assertions.assertEquals(1, friendsList.size());
-//        Assertions.assertEquals(user4, friendsList.getFirst());
+        Assertions.assertFalse(userDbStorage.getFriendshipStatus(user2.getId(), user1.getId()));
     }
 
     @Test
@@ -162,15 +117,10 @@ public class FilmorateApplicationUsersTest {
 
         userController.addUserToFriend(user1.getId(), user2.getId());
         userController.addUserToFriend(user1.getId(), user3.getId());
-        userController.addUserToFriend(user4.getId(), user3.getId());
+        userController.addUserToFriend(user2.getId(), user3.getId());
+        userController.addUserToFriend(user2.getId(), user4.getId());
 
-//        List<User> user1friendsList = userController.getCommonFriends(user1.getId(), user4.getId()).stream().toList();
-//        Assertions.assertEquals(1, user1friendsList.size());
-//        Assertions.assertEquals(user3, user1friendsList.getFirst());
-//
-//        List<User> user4friendsList = userController.getCommonFriends(user4.getId(), user1.getId()).stream().toList();
-//        Assertions.assertEquals(1, user4friendsList.size());
-//        Assertions.assertEquals(user3, user4friendsList.getFirst());
+        Assertions.assertEquals(List.of(UserMapper.jpaToDto(user3)), userController.getCommonFriends(user1.getId(),user2.getId()));
     }
 
     @Test

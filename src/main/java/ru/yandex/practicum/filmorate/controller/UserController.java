@@ -26,8 +26,7 @@ public class UserController {
 
     @GetMapping("/{userId}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<UserDto> getFriends(
-            @PathVariable(value = "userId") Long userId) {
+    public Collection<UserDto> getFriends(@PathVariable(value = "userId") Long userId) {
         return userService.getFriends(userId);
     }
 

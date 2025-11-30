@@ -100,9 +100,11 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         // --- Добавление рейтинга фильма в БД ---
-        int rows = jdbcTemplate.update(INSERT_FILM_RATING, film.getId(), film.getRating().getId());
-        if (rows < 1)
-            throw new InternalServerException("Не удалось сохранить данные");
+        if (film.getRating() != null) {
+            int rows = jdbcTemplate.update(INSERT_FILM_RATING, film.getId(), film.getRating().getId());
+            if (rows < 1)
+                throw new InternalServerException("Не удалось сохранить данные");
+        }
     }
 
     @Override
@@ -130,7 +132,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void removeLikeFromFilm(Long filmId, Long userId) {
-        if(jdbcTemplate.update(REMOVE_LIKE_FROM_FILM, filmId, userId) != 1)
+        if (jdbcTemplate.update(REMOVE_LIKE_FROM_FILM, filmId, userId) != 1)
             throw new InternalServerException("Не удалось убрать лайк");
     }
 }

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dal.mappers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -45,7 +46,12 @@ public class FilmRowMapper implements RowMapper<Film> {
                 .queryForList(GET_LIKES_QUERY, Long.class, rs.getLong("id")));
         Set<Genre> genres = new HashSet<>(jdbcTemplate
                 .query(GET_GENRES_QUERY, new GenreRowMapper(), rs.getLong("id")));
-        Rating rating = jdbcTemplate.query(GET_RATING_MPAA_QUERY, new RatingRowMapper(), rs.getLong("id")).getFirst();
+        Rating rating;
+        try {
+            rating = jdbcTemplate.queryForObject(GET_RATING_MPAA_QUERY, new RatingRowMapper(), rs.getLong("id"));
+        } catch (EmptyResultDataAccessException e) {
+            rating = null;
+        }
 
         Film film = Film.builder()
                 .id(rs.getLong("id"))

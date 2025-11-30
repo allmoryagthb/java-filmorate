@@ -34,7 +34,6 @@ public class Film {
     private final Set<Long> likesUsersIds = new HashSet<>();
     @NotNull
     private final Set<Genre> genres = new HashSet<>();
-    @NotNull
     private Rating rating;
 
     public Integer getLikes() {

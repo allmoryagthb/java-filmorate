@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.dal.dao.storage.UserStorage;
 import ru.yandex.practicum.filmorate.dal.dto.UserDto;
 import ru.yandex.practicum.filmorate.dal.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.dal.mappers.UserRowMapper;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -16,6 +17,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Collection;
+import java.util.Optional;
 
 @Slf4j
 @Repository
@@ -27,13 +29,20 @@ public class UserDbStorage implements UserStorage {
             FROM users
             ORDER BY users.id ASC
             """;
-    private final static String GET_USER_FRIENDS = """
+    private final static String GET_USER_BY_ID = """
             SELECT *
             FROM users
-            INNER JOIN friends ON users.id = friends.id
-            WHERE users.id = ?
-            ORDER BY friends.id
+            WHERE id = ?
             """;
+private final static String GET_USER_FRIENDS = """
+        SELECT *
+        FROM users
+        WHERE users.id IN (SELECT friends.friend_id
+                           FROM friends
+                           WHERE friends.id = ?
+                           )
+        ORDER BY id
+        """;
     private final static String GET_USER_COUNT_BY_ID = """
             SELECT COUNT(*)
             FROM users
@@ -79,10 +88,19 @@ public class UserDbStorage implements UserStorage {
             DELETE FROM friends
             WHERE id = ? AND friend_id = ?
             """;
+    private final static String GET_FRIENDSHIP_STATUS = """
+            SELECT status
+            FROM friends
+            WHERE id = ? AND friend_id = ?
+            """;
 
     @Override
     public Collection<User> getAllUsers() {
         return jdbcTemplate.query(GET_USERS, new UserRowMapper(jdbcTemplate));
+    }
+
+    public Optional<User> getUserById(Long id) {
+        return Optional.ofNullable(jdbcTemplate.queryForObject(GET_USER_BY_ID, new UserRowMapper(jdbcTemplate), id));
     }
 
     @Override
@@ -153,6 +171,12 @@ public class UserDbStorage implements UserStorage {
         Collection<User> userFriends = getFriends(userId);
         userFriends.retainAll(getFriends(friendId));
         return userFriends;
+    }
+
+    public Boolean getFriendshipStatus(Long userId, Long friendId) {
+        if (checkFriendshipRequestExists(userId, friendId))
+            return jdbcTemplate.queryForObject(GET_FRIENDSHIP_STATUS, Boolean.class, userId, friendId);
+        throw new EntityNotFoundException("404 Not found");
     }
 
     private boolean checkFriendshipRequestExists(Long userId, Long friendId) {
