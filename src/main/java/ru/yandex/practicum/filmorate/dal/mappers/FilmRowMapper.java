@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -30,8 +31,6 @@ public class FilmRowMapper implements RowMapper<Film> {
                 WHERE fl.film_id = ?
                 ORDER BY fl.user_id ASC
                 """;
-        Set<Long> userIdsLikes = new HashSet<>(jdbcTemplate
-                .queryForList(getLikesQuery, Long.class, rs.getLong("id")));
         String getGenresQuery = """
                 SELECT *
                 FROM genre AS g
@@ -39,21 +38,22 @@ public class FilmRowMapper implements RowMapper<Film> {
                 WHERE fg.film_id = ?
                 ORDER BY fg.genre_id ASC
                 """;
-        Set<Genre> genres = new LinkedHashSet<>((jdbcTemplate
-                .query(getGenresQuery, new GenreRowMapper(),
-                        rs.getLong("id"))
+        String getRatingMpaaQuery = """
+                SELECT *
+                FROM mpa
+                INNER JOIN film_mpa AS fm ON mpa.id = fm.mpa_id
+                WHERE fm.film_id = ?
+                ORDER BY fm.mpa_id ASC
+                """;
+
+        Set<Long> userIdsLikes = new HashSet<>(jdbcTemplate
+                .queryForList(getLikesQuery, Long.class, rs.getLong("id")));
+        Set<Genre> genres = jdbcTemplate.query(getGenresQuery, new GenreRowMapper(), rs.getLong("id"))
                 .stream()
                 .sorted(Comparator.comparing(Genre::getId))
-                .toList()));
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         Mpa rating;
         try {
-            String getRatingMpaaQuery = """
-                    SELECT *
-                    FROM mpa
-                    INNER JOIN film_mpa AS fm ON mpa.id = fm.mpa_id
-                    WHERE fm.film_id = ?
-                    ORDER BY fm.mpa_id ASC
-                    """;
             rating = jdbcTemplate.queryForObject(getRatingMpaaQuery, new RatingRowMapper(), rs.getLong("id"));
         } catch (EmptyResultDataAccessException e) {
             rating = null;
