@@ -20,13 +20,21 @@ public class UserController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Collection<User> getUsers() {
+        log.info("Получить список всех пользователей");
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public User getUserById(@PathVariable(value = "userId") Long userId) {
+        log.info("Получить пользователя с id = '{}'", userId);
+        return userService.getUserById(userId);
     }
 
     @GetMapping("/{userId}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<User> getFriends(
-            @PathVariable(value = "userId") Long userId) {
+    public Collection<User> getFriends(@PathVariable(value = "userId") Long userId) {
+        log.info("Получить список друзей пользователя с id = '{}'", userId);
         return userService.getFriends(userId);
     }
 
@@ -35,18 +43,21 @@ public class UserController {
     public Collection<User> getCommonFriends(
             @PathVariable(value = "userId") Long userId,
             @PathVariable(value = "otherId") Long otherId) {
+        log.info("Получить список общих друзей: userId = {}, otherId = {}", userId, otherId);
         return userService.getCommonFriends(userId, otherId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User addNewUser(@RequestBody @Valid User user) {
+        log.info("Добавить нового пользователя");
         return userService.addNewUser(user);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public User updateUser(@RequestBody @Valid User user) {
+        log.info("Обновить пользователя");
         return userService.updateUser(user);
     }
 
@@ -55,6 +66,7 @@ public class UserController {
     public void addUserToFriend(
             @PathVariable(value = "userId") Long userId,
             @PathVariable(value = "friendId") Long friendId) {
+        log.info("Добавить пользователя в друзья: userId = {}, friendId = {}", userId, friendId);
         userService.addUserToFriend(userId, friendId);
     }
 
@@ -63,6 +75,7 @@ public class UserController {
     public void removeUserFromFriends(
             @PathVariable(value = "userId") Long userId,
             @PathVariable(value = "friendId") Long friendId) {
+        log.info("Удалить пользователя из друзей: userId = {}, friendId = {}", userId, friendId);
         userService.removeUserFromFriends(userId, friendId);
     }
 }

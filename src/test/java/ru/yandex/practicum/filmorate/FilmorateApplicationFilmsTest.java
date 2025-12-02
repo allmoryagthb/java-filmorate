@@ -1,29 +1,34 @@
-package ru.yandex.practicum.filmorate.spring;
+package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @SpringBootTest
 public class FilmorateApplicationFilmsTest {
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    @Autowired
     private FilmController filmController;
+    @Autowired
+    private FilmService filmService;
+    @Autowired
     private UserController userController;
 
     @BeforeEach
-    void setUp() {
-        filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage()));
-        userController = new UserController(new UserService(new InMemoryUserStorage()));
+    public void init(@Qualifier("filmService") FilmService filmService) {
+        this.filmController = new FilmController(filmService);
     }
 
     @Test
@@ -34,12 +39,10 @@ public class FilmorateApplicationFilmsTest {
                 .releaseDate(LocalDate.of(1991, 1, 1))
                 .duration(123L)
                 .build();
-        filmController.addNewFilm(film);
-
+        film = filmController.addNewFilm(film);
         List<Film> films = filmController.getAllFilms().stream().toList();
         Assertions.assertNotNull(films);
-        Assertions.assertEquals(1, films.size());
-        Assertions.assertEquals(film, films.getFirst());
+        Assertions.assertEquals(film, films.get(Math.toIntExact(film.getId()) - 1));
     }
 
     @Test
@@ -53,7 +56,7 @@ public class FilmorateApplicationFilmsTest {
         filmController.addNewFilm(film);
 
         Film filmUpd = Film.builder()
-                .id(1L)
+                .id(film.getId())
                 .name("testFilm1upd")
                 .description("testFilm1Descupd")
                 .releaseDate(LocalDate.of(1999, 9, 9))
@@ -62,7 +65,6 @@ public class FilmorateApplicationFilmsTest {
         filmController.updateFilm(filmUpd);
         List<Film> films = filmController.getAllFilms().stream().toList();
         Assertions.assertNotNull(films);
-        Assertions.assertEquals(1, films.size());
-        Assertions.assertEquals(filmUpd, films.getFirst());
+        Assertions.assertEquals(filmUpd, films.get(Math.toIntExact(film.getId()) - 1));
     }
 }

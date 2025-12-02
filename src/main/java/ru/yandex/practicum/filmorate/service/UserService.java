@@ -1,29 +1,39 @@
 package ru.yandex.practicum.filmorate.service;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.dao.storage.UserStorage;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 import java.util.Objects;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
 
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
+
     public Collection<User> getAllUsers() {
-        log.info("Вернуть всех пользователей");
+        log.info("Сервис - Получить список всех пользователей");
         return userStorage.getAllUsers();
     }
 
+    public User getUserById(Long id) {
+        log.info("Сервис - Получить пользователя с id = '{}'", id);
+        return userStorage.getUserById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с id = %d не найден".formatted(id)));
+    }
+
     public User addNewUser(@Valid User user) {
+        log.info("Сервис - Добавить нового пользователя");
         userValidator(user);
         userStorage.addNewUser(user);
         log.info("Добавлен новый пользователь с id = {}", user.getId());
@@ -53,11 +63,13 @@ public class UserService {
     }
 
     public Collection<User> getFriends(Long userId) {
+        log.info("Сервис - Получить список друзей пользователя с id = '{}'", userId);
         checkId(userId);
         return userStorage.getFriends(userId);
     }
 
     public Collection<User> getCommonFriends(Long userId, Long otherId) {
+        log.info("Сервис - Получить список общих друзей: userId = {}, otherId = {}", userId, otherId);
         checkId(userId);
         checkId(otherId);
         checkIfIdsAreEquals(userId, otherId);

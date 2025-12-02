@@ -20,24 +20,35 @@ public class FilmController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Collection<Film> getAllFilms() {
+        log.info("Получить все фильмы");
         return filmService.getAllFilms();
+    }
+
+    @GetMapping("/{filmId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Film getFilmById(@PathVariable(value = "filmId") Long filmId) {
+        log.info("Получить фильм с id = '{}'", filmId);
+        return filmService.getFilmById(filmId);
     }
 
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
     public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
+        log.info("Получить {} популярных фильмов", count);
         return filmService.getPopular(count);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Film addNewFilm(@Valid @RequestBody Film film) {
+        log.info("Добавить новый фильм");
         return filmService.addNewFilm(film);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public Film updateFilm(@Valid @RequestBody Film film) {
+        log.info("Обновить фильм");
         return filmService.updateFilm(film);
     }
 
@@ -46,6 +57,7 @@ public class FilmController {
     public void putLikeToFilm(
             @PathVariable(value = "filmId") Long filmId,
             @PathVariable(value = "userId") Long userId) {
+        log.info("Добавить лайк фильму: filmId = '{}', userId = '{}'", filmId, userId);
         filmService.putLikeToFilm(filmId, userId);
     }
 
