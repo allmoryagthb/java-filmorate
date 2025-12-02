@@ -19,12 +19,14 @@ public class GenreController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Collection<Genre> getAllGenres() {
+        log.info("Получить все жанры");
         return genreService.getAllGenres();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Genre getGenreById(@PathVariable(value = "id") Long genreId) {
+        log.info("Получить жанр с id = {}", genreId);
         return genreService.getGenreById(genreId);
     }
 }

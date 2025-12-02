@@ -1,18 +1,20 @@
 package ru.yandex.practicum.filmorate.dal.dao.storage;
 
-import ru.yandex.practicum.filmorate.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface FilmStorage {
     Collection<Film> getAllFilms();
 
-    Film getFilmById(Long id);
+    Optional<Film> getFilmById(Long id);
 
     void addNewFilm(Film film);
 
-    FilmDto updateFilm(FilmDto filmDto);
+    Film updateFilm(Film film);
+
+    Collection<Film> getPopularFilms(int size);
 
     boolean checkFilmExistsById(Long filmId);
 

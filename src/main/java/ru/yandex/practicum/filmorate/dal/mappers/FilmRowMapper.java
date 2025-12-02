@@ -1,79 +1,33 @@
 package ru.yandex.practicum.filmorate.dal.mappers;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class FilmRowMapper implements RowMapper<Film> {
-    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
-        String getLikesQuery = """
-                SELECT fl.user_id
-                FROM film_likes AS fl
-                WHERE fl.film_id = ?
-                ORDER BY fl.user_id ASC
-                """;
-        String getGenresQuery = """
-                SELECT *
-                FROM genre AS g
-                INNER JOIN film_genres AS fg ON g.id = fg.genre_id
-                WHERE fg.film_id = ?
-                ORDER BY fg.genre_id ASC
-                """;
-        String getRatingMpaaQuery = """
-                SELECT *
-                FROM mpa
-                INNER JOIN film_mpa AS fm ON mpa.id = fm.mpa_id
-                WHERE fm.film_id = ?
-                ORDER BY fm.mpa_id ASC
-                """;
-
-        Set<Long> userIdsLikes = new HashSet<>(jdbcTemplate
-                .queryForList(getLikesQuery, Long.class, rs.getLong("id")));
-        Set<Genre> genres = jdbcTemplate.query(getGenresQuery, new GenreRowMapper(), rs.getLong("id"))
-                .stream()
-                .sorted(Comparator.comparing(Genre::getId))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-        Mpa rating;
-        try {
-            rating = jdbcTemplate.queryForObject(getRatingMpaaQuery, new RatingRowMapper(), rs.getLong("id"));
-        } catch (EmptyResultDataAccessException e) {
-            rating = null;
-        }
-
-        Film film = Film.builder()
+        return Film.builder()
                 .id(rs.getLong("id"))
                 .name(rs.getString("name"))
                 .description(rs.getString("description"))
                 .releaseDate(rs.getObject("releaseDate", LocalDate.class))
                 .duration(rs.getLong("duration"))
-                .mpa(rating)
+                .mpa(Mpa.builder()
+                        .id(rs.getLong("mpa.id"))
+                        .name(rs.getString("mpa.name"))
+                        .build())
+                .genres(new HashSet<>())
                 .build();
-
-        for (Long id : userIdsLikes)
-            film.addLikesUsersId(id);
-
-        for (Genre genre : genres)
-            film.addGenre(genre);
-
-        return film;
     }
 }

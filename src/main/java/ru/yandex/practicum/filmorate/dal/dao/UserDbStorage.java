@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.dao;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -17,7 +16,6 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.Optional;
 
-@Slf4j
 @Repository
 @AllArgsConstructor
 public class UserDbStorage implements UserStorage {
@@ -90,14 +88,24 @@ public class UserDbStorage implements UserStorage {
             FROM friends
             WHERE id = ? AND friend_id = ?
             """;
+    private static final String GET_COMMON_FRIENDS = """
+            SELECT *
+            FROM users
+            WHERE users.id IN (SELECT f1.friend_id
+                               FROM friends AS f1
+                               INNER JOIN friends AS f2 ON f1.friend_id = f2.friend_id
+                               WHERE f1.id = ?
+                               AND f2.id = ?
+                )
+            """;
 
     @Override
     public Collection<User> getAllUsers() {
-        return jdbcTemplate.query(GET_USERS, new UserRowMapper(jdbcTemplate));
+        return jdbcTemplate.query(GET_USERS, new UserRowMapper());
     }
 
     public Optional<User> getUserById(Long id) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(GET_USER_BY_ID, new UserRowMapper(jdbcTemplate), id));
+        return Optional.ofNullable(jdbcTemplate.queryForObject(GET_USER_BY_ID, new UserRowMapper(), id));
     }
 
     @Override
@@ -160,14 +168,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Collection<User> getFriends(Long userId) {
-        return jdbcTemplate.query(GET_USER_FRIENDS, new UserRowMapper(jdbcTemplate), userId);
+        return jdbcTemplate.query(GET_USER_FRIENDS, new UserRowMapper(), userId);
     }
 
     @Override
     public Collection<User> getCommonFriends(Long userId, Long friendId) {
-        Collection<User> userFriends = getFriends(userId);
-        userFriends.retainAll(getFriends(friendId));
-        return userFriends;
+        return jdbcTemplate.query(GET_COMMON_FRIENDS, new UserRowMapper(), userId, friendId);
     }
 
     public Boolean getFriendshipStatus(Long userId, Long friendId) {

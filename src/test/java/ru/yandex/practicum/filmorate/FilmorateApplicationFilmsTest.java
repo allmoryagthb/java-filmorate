@@ -9,8 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.dal.dto.FilmDto;
-import ru.yandex.practicum.filmorate.dal.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -57,16 +55,16 @@ public class FilmorateApplicationFilmsTest {
                 .build();
         filmController.addNewFilm(film);
 
-        FilmDto filmDtoUpd = FilmDto.builder()
+        Film filmUpd = Film.builder()
                 .id(film.getId())
                 .name("testFilm1upd")
                 .description("testFilm1Descupd")
                 .releaseDate(LocalDate.of(1999, 9, 9))
                 .duration(321L)
                 .build();
-        filmController.updateFilm(filmDtoUpd);
+        filmController.updateFilm(filmUpd);
         List<Film> films = filmController.getAllFilms().stream().toList();
         Assertions.assertNotNull(films);
-        Assertions.assertEquals(filmDtoUpd, FilmMapper.jpaToDto(films.get(Math.toIntExact(film.getId()) - 1)));
+        Assertions.assertEquals(filmUpd, films.get(Math.toIntExact(film.getId()) - 1));
     }
 }

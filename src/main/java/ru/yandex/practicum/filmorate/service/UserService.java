@@ -3,11 +3,8 @@ package ru.yandex.practicum.filmorate.service;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.dao.storage.UserStorage;
-import ru.yandex.practicum.filmorate.dal.dto.UserDto;
-import ru.yandex.practicum.filmorate.dal.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -25,19 +22,18 @@ public class UserService {
     }
 
     public Collection<User> getAllUsers() {
-        log.info("Вернуть всех пользователей");
+        log.info("Сервис - Получить список всех пользователей");
         return userStorage.getAllUsers();
     }
 
     public User getUserById(Long id) {
-        try {
-            return userStorage.getUserById(id).orElseThrow();
-        } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException("404 Not Found");
-        }
+        log.info("Сервис - Получить пользователя с id = '{}'", id);
+        return userStorage.getUserById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с id = %d не найден".formatted(id)));
     }
 
     public User addNewUser(@Valid User user) {
+        log.info("Сервис - Добавить нового пользователя");
         userValidator(user);
         userStorage.addNewUser(user);
         log.info("Добавлен новый пользователь с id = {}", user.getId());
@@ -66,19 +62,18 @@ public class UserService {
         userStorage.removeUserFromFriends(userId, friendId);
     }
 
-    public Collection<UserDto> getFriends(Long userId) {
+    public Collection<User> getFriends(Long userId) {
+        log.info("Сервис - Получить список друзей пользователя с id = '{}'", userId);
         checkId(userId);
-        return userStorage.getFriends(userId)
-                .stream()
-                .map(UserMapper::jpaToDto)
-                .toList();
+        return userStorage.getFriends(userId);
     }
 
-    public Collection<UserDto> getCommonFriends(Long userId, Long otherId) {
+    public Collection<User> getCommonFriends(Long userId, Long otherId) {
+        log.info("Сервис - Получить список общих друзей: userId = {}, otherId = {}", userId, otherId);
         checkId(userId);
         checkId(otherId);
         checkIfIdsAreEquals(userId, otherId);
-        return userStorage.getCommonFriends(userId, otherId).stream().map(UserMapper::jpaToDto).toList();
+        return userStorage.getCommonFriends(userId, otherId);
     }
 
     private void userValidator(@Valid User user) {

@@ -1,18 +1,16 @@
 package ru.yandex.practicum.filmorate.dal.dao;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.dao.storage.MpaStorage;
 import ru.yandex.practicum.filmorate.dal.mappers.RatingRowMapper;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
-@Slf4j
 @Repository
 @AllArgsConstructor
 public class MpaDbStorage implements MpaStorage {
@@ -29,16 +27,19 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public Mpa getMpaById(Long id) {
+    public Optional<Mpa> getMpaById(Long id) {
         String getMpaById = """
                 SELECT *
                 FROM mpa
                 WHERE id = ?
                 """;
-        try {
-            return jdbcTemplate.queryForObject(getMpaById, new RatingRowMapper(), id);
-        } catch (DataAccessException e) {
-            throw new EntityNotFoundException("404 Not Found");
-        }
+        List<Mpa> mpaList = jdbcTemplate.query(getMpaById, (resultSet, rowNumber) ->
+                Mpa.builder()
+                        .id(resultSet.getLong("id"))
+                        .name(resultSet.getString("name"))
+                        .build(), id);
+        if (mpaList.isEmpty())
+            return Optional.empty();
+        return Optional.ofNullable(mpaList.getFirst());
     }
 }

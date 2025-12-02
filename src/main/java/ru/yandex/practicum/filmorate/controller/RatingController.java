@@ -19,12 +19,14 @@ public class RatingController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Collection<Mpa> getAllRatings() {
+        log.info("Получить список с всеми рейтингами");
         return ratingService.getAllRatings();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Mpa getGenreById(@PathVariable(value = "id") Long ratingId) {
+        log.info("Получить рейтинг с id = {}", ratingId);
         return ratingService.getRatingById(ratingId);
     }
 }

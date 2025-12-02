@@ -29,18 +29,8 @@ public class Film {
     @Min(1)
     private Long duration;
     @NotNull
-    private final Set<Long> likesUsersIds = new HashSet<>();
-    @NotNull
     private Set<Genre> genres = new HashSet<>();
     private Mpa mpa;
-
-    public Integer getLikes() {
-        return likesUsersIds.size();
-    }
-
-    public void addLikesUsersId(Long userId) {
-        this.likesUsersIds.add(userId);
-    }
 
     public void addGenre(Genre genre) {
         if (genres == null)

@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.dal.dao.UserDbStorage;
-import ru.yandex.practicum.filmorate.dal.dto.UserDto;
-import ru.yandex.practicum.filmorate.dal.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -52,12 +50,12 @@ public class FilmorateApplicationUsersTest {
 
         userController.addUserToFriend(user1.getId(), user2.getId());
 
-        List<UserDto> user1Friends = userController.getFriends(user1.getId()).stream().toList();
-        List<UserDto> user2Friends = userController.getFriends(user2.getId()).stream().toList();
+        List<User> user1Friends = userController.getFriends(user1.getId()).stream().toList();
+        List<User> user2Friends = userController.getFriends(user2.getId()).stream().toList();
 
         Assertions.assertEquals(1, user1Friends.size());
         Assertions.assertEquals(0, user2Friends.size());
-        Assertions.assertEquals(UserMapper.jpaToDto(user2), user1Friends.getFirst());
+        Assertions.assertEquals(user2, user1Friends.getFirst());
     }
 
     @Test
@@ -120,7 +118,7 @@ public class FilmorateApplicationUsersTest {
         userController.addUserToFriend(user2.getId(), user3.getId());
         userController.addUserToFriend(user2.getId(), user4.getId());
 
-        Assertions.assertEquals(List.of(UserMapper.jpaToDto(user3)), userController.getCommonFriends(user1.getId(),user2.getId()));
+        Assertions.assertEquals(List.of(user3), userController.getCommonFriends(user1.getId(), user2.getId()));
     }
 
     @Test

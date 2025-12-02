@@ -3,11 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.dao.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.dao.storage.UserStorage;
-import ru.yandex.practicum.filmorate.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -31,37 +29,38 @@ public class FilmService {
     }
 
     public Collection<Film> getAllFilms() {
-        log.info("Вернуть все фильмы");
+        log.info("Сервис - Получить все фильмы");
         return filmStorage.getAllFilms();
     }
 
     public Film getFilmById(Long id) {
-        try {
-            return filmStorage.getFilmById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException("404 Not Found");
-        }
+        log.info("Сервис - Получить фильм с id = '{}'", id);
+        return filmStorage.getFilmById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Фильм с id = '%d' не найден".formatted(id)));
     }
 
     public Film addNewFilm(Film film) {
+        log.info("Сервис - Добавить новый фильм");
         filmValidator(film);
         filmStorage.addNewFilm(film);
         log.info("Добавлен новый фильм с id = {}", film.getId());
         return film;
     }
 
-    public FilmDto updateFilm(FilmDto filmDto) {
-        if (Objects.isNull(filmDto.getId()))
+    public Film updateFilm(Film film) {
+        log.info("Сервис - Обновить фильм");
+        if (Objects.isNull(film.getId()))
             throw new ValidationException("Некорректный id");
-        if (!filmStorage.checkFilmExistsById(filmDto.getId()))
-            throw new EntityNotFoundException("Фильма с id = %s не существует".formatted(filmDto.getId()));
-        filmDtoValidator(filmDto);
-        FilmDto updatedFilm = filmStorage.updateFilm(filmDto);
-        log.info("Фильм с id = {} успешно обновлен", filmDto.getId());
+        if (!filmStorage.checkFilmExistsById(film.getId()))
+            throw new EntityNotFoundException("Фильма с id = %s не существует".formatted(film.getId()));
+        filmValidator(film);
+        Film updatedFilm = filmStorage.updateFilm(film);
+        log.info("Фильм с id = {} успешно обновлен", film.getId());
         return updatedFilm;
     }
 
     public void putLikeToFilm(Long filmId, Long userId) {
+        log.info("Сервис - Добавить лайк фильму: filmId = '{}', userId = '{}'", filmId, userId);
         storagesValidator(filmId, userId);
         filmStorage.putLikeToFilm(filmId, userId);
     }
@@ -72,24 +71,14 @@ public class FilmService {
     }
 
     public Collection<Film> getPopular(Integer count) {
+        log.info("Сервис - Получить {} популярных фильмов", count);
         if (count < 1)
             throw new ValidationException("Значение count должно быть больше нуля");
-        return filmStorage.getAllFilms()
-                .stream()
-                .sorted((f1, f2) -> f2.getLikes() - f1.getLikes())
-                .limit(count)
-                .toList();
+        return filmStorage.getPopularFilms(count);
     }
 
     private void filmValidator(@Valid Film film) {
         if (film.getReleaseDate().isBefore(dateCheck)) {
-            log.error("incorrect data - validation failed");
-            throw new ValidationException("date is before " + dateCheck);
-        }
-    }
-
-    private void filmDtoValidator(@Valid FilmDto filmDto) {
-        if (filmDto.getReleaseDate().isBefore(dateCheck)) {
             log.error("incorrect data - validation failed");
             throw new ValidationException("date is before " + dateCheck);
         }
